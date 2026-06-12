@@ -14,17 +14,13 @@ struct IRCPrompt
 class Parser
 {
 	public:
-		IRCPrompt parsePrompt(std::string raw_line);
+		static IRCPrompt parsePrompt(std::string raw_line);
 
 		~Parser();
 	private:
 		Parser();
 		Parser(const Parser& other);
 		Parser& operator=(const Parser& other);
-
-		// IRCPrompt prompt;
-
-		// a faire dans main
 };
 
 #endif

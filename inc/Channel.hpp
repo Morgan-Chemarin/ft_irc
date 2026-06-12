@@ -3,7 +3,6 @@
 
 #include <string>
 #include <map>
-#include "Client.hpp"
 
 class Channel
 {
@@ -13,15 +12,14 @@ class Channel
 		Channel& operator=(const Channel& other);
 		~Channel();
 
-		void broadcast(std::string const &msg, Client* sender_to_exclude);
 		// add client to channel
 		// remove client to channel
 		// gerer mode
 		// stocke TOPIC
 
 	private:
-		std::map<int, Client*> clientsList;
-		std::map<int, Client*> operatorsList;
+		// std::map<int, Client*> clientsList;
+		// std::map<int, Client*> operatorsList;
 
 };
 
