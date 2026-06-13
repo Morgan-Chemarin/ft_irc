@@ -9,27 +9,75 @@
 
 "argument1,2,3" = des mots simples (un nom de salle a rejoindre, un nickname...)
 
-":dernier_parametre" = commence par un : après un espace. seul paramètre qui a le droit de contenir des espaces (ca va etre le msg dans un MSGPRIV)
+" :dernier_parametre" = commence par un : après un espace. seul paramètre qui a le droit de contenir des espaces (ca va etre le msg dans un MSGPRIV)
 
 */
 
 IRCPrompt Parser::parsePrompt(std::string raw_line)
 {
-	std::string prefixe = "";
-	std::string commande = "";
-	std::vector<std::string> parametres;
+	IRCPrompt prompted;
 
-	(void)raw_line;
-	
-	// check prefixe entre ":" et " "
+	// check prefix et lastparam tant quon est en string et les retirer de la string si trouve
+	if (!raw_line.empty() && raw_line[0] == ':')
+    {
+        size_t pos_space = raw_line.find(' ');
+        if (pos_space != std::string::npos)
+        {
+            prompted.prefix = raw_line.substr(1, pos_space - 1);
+            raw_line = raw_line.substr(pos_space + 1);
+        }
+    }
 
-	// check dernierpaeametre apres " :"
+	size_t pos_last_param = raw_line.find(" :");
+	std::string last_param = "";
 
-	// decouper le reste selon les espaces (en premier commande)
+	if (pos_last_param != std::string::npos)
+	{
+		last_param = raw_line.substr(pos_last_param + 2);
+		raw_line = raw_line.substr(0, pos_last_param);
+	}
 
-	// ajouter dernierparam dans parametres
+	// on passe en ss pour vite parser les mots restant en retirant les espaces
+	std::stringstream ss(raw_line);
+	std::string word;
 
-	return IRCPrompt();
+	if (ss >> word)
+		prompted.command = word;
+
+	while (ss >> word)
+		prompted.args.push_back(word);
+
+	if (pos_last_param != std::string::npos)
+        prompted.args.push_back(last_param);
+
+	//? test print struct
+	std::cout << "Prefix: " << prompted.prefix << "\n";
+    std::cout << "Command: " << prompted.command << "\n";
+    std::cout << "Args: ";
+    for (size_t i = 0; i < prompted.args.size(); i++)
+    {
+        std::cout << prompted.args[i];
+        if (i < prompted.args.size() - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+
+	return prompted;
+}
+
+void Parser::processclientCommand(std::string raw_line) // Server& server, Client& client (ajouter comme arguement)
+{
+	IRCPrompt prompt = parsePrompt(raw_line);
+
+	if (prompt.command == "JOIN")
+		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
+		std::cout << "Command JOIN printed." << std::endl;
+	else if (prompt.command == "KICK")
+		std::cout << "Command KICK printed." << std::endl;
+	else if (prompt.command == "INVITE")
+		std::cout << "Command INVITE printed." << std::endl;
+	else
+		std::cout << "Command " << prompt.command << " dont exist." << std::endl;
 }
 
 Parser::~Parser()
