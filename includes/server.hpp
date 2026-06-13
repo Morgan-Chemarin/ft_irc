@@ -7,15 +7,16 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 
-class server
+class Server
 {
 	public:
-		server();
-		server(int port, std::string password);
-		server(const server &src);
-		server &operator=(const server &src);
-		~server();
+		Server();
+		Server(int port, std::string password);
+		Server(const Server &src);
+		Server &operator=(const Server &src);
+		~Server();
 
 		void	initServer();
 
@@ -25,6 +26,30 @@ class server
 				virtual const char *what() const throw()
 				{
 					return ("Error: Unable to create the server socket.");
+				}
+		};
+		class  ErrorSocketOption : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: Unable to configure socket options.");
+				}
+		};
+		class  ErrorNonBlocking : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: It is not possible to switch the socket to non-blocking mode.");
+				}
+		};
+		class  ErrorBind : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: Unable to bind the socket to the port.");
 				}
 		};
 	private:
