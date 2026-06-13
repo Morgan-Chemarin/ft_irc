@@ -69,6 +69,7 @@ void Parser::processclientCommand(std::string raw_line) // Server& server, Clien
 {
 	IRCPrompt prompt = parsePrompt(raw_line);
 
+	// liste enum plutot ??
 	if (prompt.command == "JOIN")
 		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
 		std::cout << "Command JOIN printed." << std::endl;
