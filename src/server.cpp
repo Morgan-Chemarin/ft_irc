@@ -7,12 +7,14 @@ Server::Server(int port, std::string password)
 {
 	_port = port;
 	_password = password;
+	_serverSocket = -1;
 }
 
 Server::Server(const Server &src)
 {
 	_port = src._port;
 	_password = src._password;
+	_serverSocket = src._serverSocket;
 }
 
 Server	&Server::operator=(const Server &src)
@@ -21,12 +23,16 @@ Server	&Server::operator=(const Server &src)
 	{
 		_port = src._port;
 		_password = src._password;
+		_serverSocket = src._serverSocket;
 	}
 	return (*this);
 }
 
 Server::~Server()
-{}
+{
+	if (_serverSocket != -1)
+		close(_serverSocket);
+}
 
 void	Server::initServer()
 {
@@ -59,5 +65,103 @@ void	Server::initServer()
 	// requetes envoyer sur le port, le serveur va creer une file d'attente, cette option est la pour indique de creer la plus grande file possible
 	if (listen(_serverSocket, SOMAXCONN) == -1)
 		throw ErrorSocketListen();
-	std::cout << "Server Init done" << std::endl;
+}
+
+// Cette Fonction est appelee des que poll() detecte de l'activite sur _serverSocket, la fonction va creer un
+// fd uniquement pour la communication entre le client et le serveur. Elle va aussi configurer le nouveau client
+// en non bloquant puis elle va associer une struct pollfd a notre client.
+
+void	Server::acceptNewClient()
+{
+	struct sockaddr_in	clientAdress; // va permettre de retrouver l'adresse IP et le port de notre client
+	socklen_t	clientlen = sizeof(clientAdress);
+
+	int	ClientFd = accept(_serverSocket, (struct sockaddr *)&clientAdress, &clientlen); // creation du nouveau fd entre le client et le serveur
+	if (ClientFd == -1)
+	{
+		std::cerr << "Error: function accept failed." << std::endl;
+		return ;
+	}
+	fcntl(ClientFd, F_SETFL, O_NONBLOCK); // non bloquant
+	_clients[ClientFd] = Client(ClientFd); 
+	struct pollfd ClientPollFd;
+	ClientPollFd.fd = ClientFd;
+	ClientPollFd.events = POLLIN;
+	ClientPollFd.revents = 0;
+	_pollfd.push_back(ClientPollFd);
+	std::cout << "Client connected" << std::endl;
+}
+
+// Cette fontion est appelee lorsque un client quitte son terminal ou bien crash,
+// elle va faire en sorte de supprime tout ce que l'on a sur le client concerne.
+
+void	Server::disconnectClient(size_t i)
+{
+	int	fd = _pollfd[i].fd;
+	std::cout << "Client disconnected" << std::endl;
+	close(fd);
+	_clients.erase(fd);
+	_pollfd.erase(_pollfd.begin() + i);
+}
+
+// Cette fonction gere la lecture des donnee. Son role est de prevenir la fonction disconnectClient
+// si il y a une deco, mais surtout a servir de relais entre le client et processCommand()
+// 
+
+void	Server::receiveClientData(size_t i)
+{
+	int	fd = _pollfd[i].fd;
+	char buffer[1024]; // 1024 car 1024 octets = 1 Kio et donc le processeur peut aligner parfaitement cette structure sur les
+					   // blocs de memoire physique de la machine et aussi cela assure de quasiment pouvoir vider un paquet en un seul coup
+	std::memset(buffer, 0, sizeof(buffer));
+	int	bytesRead = recv(fd, buffer, sizeof(buffer) - 1, 0); // on lit ce que le client a envoye, le resultat sera stocke dans buffer
+	if (bytesRead <= 0) // Si le client renvoie 0 ou -1 cela veut dire que le client a fermer la connexion
+		disconnectClient(i);
+	else
+	{
+		_clients[fd].appendBuffer(buffer);
+		std::string	current = _clients[fd].getBuffer();
+		if (current.find('\n') != std::string::npos) // chaque commande doit se terminer par un retour a la ligne
+		{
+			std::cout << current << std::endl; // temporaire
+			// processCommand
+			_clients[fd].clearBuffer();
+		}
+	}
+}
+
+// le role de la fonction run est d'etre alerte si le serveur recois un paquet
+// et ensuite de renvoyer ce paquet vers les fonctions : acceptNewClient et ReceiveClientData
+
+void	Server::run()
+{
+	struct pollfd	serverPoll; // creation du serverPoll pour _serverSocket
+	serverPoll.fd = _serverSocket;
+	serverPoll.events = POLLIN;
+	serverPoll.revents = 0;
+	_pollfd.push_back(serverPoll);
+
+	while (true)
+	{
+		if (poll(&_pollfd[0], _pollfd.size(), -1) == -1) // Permet de mettre le programme en pause jusqu'a l'arriver d'un paquet (Reduit la conso du CPU)
+		{
+			std::cerr << "Error: function poll failed" << std::endl;
+			return ;
+		}
+		for (size_t i = 0; i < _pollfd.size(); i++) // on cherche dans _pollfd de qu'elle client provient le paquet
+		{
+			if (_pollfd[i].revents & POLLIN) // On regarde si le fd en question a recu le FLAG POLLIN, si oui c'est ce fd qui a envoye un paquet
+			{
+				if (_pollfd[i].fd == _serverSocket) // _serverSocket est forcement egal a nouveau client
+					acceptNewClient();
+				else
+				{
+					size_t	oldSize = _pollfd.size();
+					receiveClientData(i);
+					if (_pollfd.size() < oldSize) // Si jamais il y a une deconnexion d'un client, le client d'apres dans _pollfd va prendre sa
+						i--;					  // place et donc pour eviter de sauter son tour (i++) ou prevois le coup en le decrementant
+				}
+			}
+		}
+	}
 }

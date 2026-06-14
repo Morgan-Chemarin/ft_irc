@@ -12,6 +12,7 @@ int main(int ac, char **av)
 		int	port = std::atoi(av[1]); // Il faudra surement faire du parsing sur le port avant de l'init
 		Server	serv(port, av[2]);
 		serv.initServer();
+		serv.run();
 	}
 	catch(const std::exception& e)
 	{

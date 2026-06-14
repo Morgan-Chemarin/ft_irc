@@ -4,10 +4,15 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <poll.h>
+#include <vector>
+#include <map>
+#include <unistd.h>
+
+#include "client.hpp"
 
 class Server
 {
@@ -19,6 +24,7 @@ class Server
 		~Server();
 
 		void	initServer();
+		void	run();
 
 		class  ErrorSocket : public std::exception
 		{
@@ -64,6 +70,19 @@ class Server
 		int _port;
 		std::string	_password;
 		int	_serverSocket;
+		// _pollfd est le vector que va surveiller la fonction poll(), quand un message est envoye elle va recevoir
+		// une alerte et directement aller chercher le fd correspondant
+		// On utilise un vector car le nombre de client va souvent changer et donc le vector permet d'ajouter des
+		// clients facilemet (push_back) et aussi car poll() a beosin d'un conteneur avec une memoire contigu (tout les elements se touchent)
+		std::vector<struct pollfd> _pollfd; // struct pollfd : fd = numero de socket a cible, events = c'est la ou l'on va recevoir l'alerte du message, revents = c'est la que poll() ecrire sa reponse
+		// Une fois le fd retrouve dans _pollfd, poll() va ensuite associe le client correspondant au fd qui a envoye l'alerte
+		// On utlise une map car sans elle on devrait chercher dans tout le conteneur a qui appartient le fd trouver juste avant alors que 
+		// grace a la clef (ici les fd) des map on peut directement savoir a qui il appartient
+		std::map<int, Client>	_clients;
+
+		void	acceptNewClient();
+		void	receiveClientData(size_t i);
+		void	disconnectClient(size_t i);
 };
 
 #endif
