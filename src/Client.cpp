@@ -1,9 +1,9 @@
 #include "Client.hpp"
 
-Client::Client(): _fd(-1), _nickname(""), _username(""), _isRegistered(false), _buffer("")
+Client::Client(): _fd(-1), _nickname(""), _username(""), _isRegistered(false), _buffer(""), _hasPassword(false), _ip("")
 {}
 
-Client::Client(int fd): _fd(fd), _nickname(""), _username(""), _isRegistered(false), _buffer("")
+Client::Client(int fd): _fd(fd), _nickname(""), _username(""), _isRegistered(false), _buffer(""), _hasPassword(false), _ip("")
 {}
 
 Client::Client(const Client &src)
@@ -20,6 +20,8 @@ Client	&Client::operator=(const Client &src)
 		_username = src._username;
 		_isRegistered = src._isRegistered;
 		_buffer = src._buffer;
+		_hasPassword = src._hasPassword;
+		_ip = src._ip;
 	}
 	return (*this);
 }
@@ -52,6 +54,16 @@ std::string Client::getBuffer() const
 	return (_buffer);
 }
 
+bool	Client::getHasPassword() const
+{
+	return (_hasPassword);
+}
+
+std::string	Client::getPrefix() const
+{
+	return (_nickname + "!" + _username + "@" + _ip);
+}
+
 void	Client::setNickname(const std::string &nickname)
 {
 	_nickname = nickname;
@@ -65,6 +77,16 @@ void	Client::setUsername(const std::string &username)
 void	Client::setIsRegistered(bool status)
 {
 	_isRegistered = status;
+}
+
+void	Client::setHasPassword(bool status)
+{
+	_hasPassword = status;
+}
+
+void	Client::setIp(const std::string &ip)
+{
+	_ip = ip;
 }
 
 void	Client::appendBuffer(const std::string &str)
