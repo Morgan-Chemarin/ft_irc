@@ -12,7 +12,8 @@
 #include <map>
 #include <unistd.h>
 
-#include "client.hpp"
+#include "Client.hpp"
+#include "Parser.hpp"
 
 class Server
 {
@@ -83,6 +84,8 @@ class Server
 		void	acceptNewClient();
 		void	receiveClientData(size_t i);
 		void	disconnectClient(size_t i);
+
+		void	processCLientCommand(int fd, std::string raw_line);
 };
 
 #endif

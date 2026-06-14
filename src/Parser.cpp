@@ -65,22 +65,6 @@ IRCPrompt Parser::parsePrompt(std::string raw_line)
 	return prompted;
 }
 
-void Parser::processclientCommand(std::string raw_line) // Server& server, Client& client (ajouter comme arguement)
-{
-	IRCPrompt prompt = parsePrompt(raw_line);
-
-	// liste enum plutot ??
-	if (prompt.command == "JOIN")
-		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
-		std::cout << "Command JOIN printed." << std::endl;
-	else if (prompt.command == "KICK")
-		std::cout << "Command KICK printed." << std::endl;
-	else if (prompt.command == "INVITE")
-		std::cout << "Command INVITE printed." << std::endl;
-	else
-		std::cout << "Command " << prompt.command << " dont exist." << std::endl;
-}
-
 Parser::~Parser()
 {
 

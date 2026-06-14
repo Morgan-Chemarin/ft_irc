@@ -17,7 +17,6 @@ class Parser
 {
 	public:
 		static IRCPrompt parsePrompt(std::string raw_line);
-		static void processclientCommand(std::string raw_line);
 
 		~Parser();
 	private:

@@ -1,4 +1,4 @@
-#include "../includes/server.hpp"
+#include "Server.hpp"
 
 Server::Server()
 {}
@@ -104,6 +104,23 @@ void	Server::disconnectClient(size_t i)
 	_pollfd.erase(_pollfd.begin() + i);
 }
 
+//!
+void Server::processCLientCommand(int fd, std::string raw_line) // Server& server, Client& client (ajouter comme arguement)
+{
+	IRCPrompt prompt = Parser::parsePrompt(raw_line);
+
+	// liste enum plutot ??
+	if (prompt.command == "JOIN")
+		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
+		std::cout << "Command JOIN printed." << fd << std::endl;
+	else if (prompt.command == "KICK")
+		std::cout << "Command KICK printed." << std::endl;
+	else if (prompt.command == "INVITE")
+		std::cout << "Command INVITE printed." << std::endl;
+	else
+		std::cout << "Command " << prompt.command << " dont exist." << std::endl;
+}
+
 // Cette fonction gere la lecture des donnee. Son role est de prevenir la fonction disconnectClient
 // si il y a une deco, mais surtout a servir de relais entre le client et processCommand()
 // 
@@ -123,8 +140,7 @@ void	Server::receiveClientData(size_t i)
 		std::string	current = _clients[fd].getBuffer();
 		if (current.find('\n') != std::string::npos) // chaque commande doit se terminer par un retour a la ligne
 		{
-			std::cout << current << std::endl; // temporaire
-			// processCommand
+			this->processCLientCommand(fd, current); // appel la fonction de parsing et de redirection des commandes
 			_clients[fd].clearBuffer();
 		}
 	}

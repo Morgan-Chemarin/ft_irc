@@ -1,28 +1,30 @@
-NAME            =       ircserver
-CXX             =       c++
-CXXFLAGS        =       -Wall -Wextra -Werror -std=c++98 -I$(HEADERS_DIR) -MMD -MP
+NAME                    =   ircserv
+CXX                             =   c++
+CXXFLAGS                =   -Wall -Wextra -Werror -std=c++98 -I$(HEADERS_DIR) -MMD -MP
 
-RESET           =       \033[0m
-RED             =       \033[31m
-GREEN           =       \033[32m
-BLUE            =       \033[34m
+RESET           =   \033[0m
+RED             =   \033[31m
+GREEN           =   \033[32m
+BLUE            =   \033[34m
 
-SRCS_FILES      =       main.cpp \
-						Parser.cpp
+SRCS_FILES      =   main.cpp \
+					Server.cpp \
+					Client.cpp \
+					Parser.cpp 
 
 SRCS_DIR        =       src
-HEADERS_DIR     =       inc
-OBJ_DIR         =       obj
+HEADERS_DIR     =       includes
+OBJ_DIR			=       obj
 
-SRCS            =       $(addprefix $(SRCS_DIR)/, $(SRCS_FILES))
-OBJS            =       $(addprefix $(OBJ_DIR)/, $(SRCS_FILES:.cpp=.o))
+SRCS			=       $(addprefix $(SRCS_DIR)/, $(SRCS_FILES))
+OBJS			=       $(addprefix $(OBJ_DIR)/, $(SRCS_FILES:.cpp=.o))
 DEPS            =       $(OBJS:.o=.d)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-		@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
-		@echo "$(GREEN)Successfully compiled [$(NAME)]$(RESET)"
+				@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+				@echo "$(GREEN)Successfully compiled [$(NAME)]$(RESET)"
 
 -include $(DEPS)
 

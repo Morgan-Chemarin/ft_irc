@@ -1,4 +1,4 @@
-#include "../includes/client.hpp"
+#include "Client.hpp"
 
 Client::Client(): _fd(-1), _nickname(""), _username(""), _isRegistered(false), _buffer("")
 {}
