@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iostream>
 
 struct IRCPrompt
 {
@@ -14,17 +16,14 @@ struct IRCPrompt
 class Parser
 {
 	public:
-		IRCPrompt parsePrompt(std::string raw_line);
+		static IRCPrompt parsePrompt(std::string raw_line);
+		static void processclientCommand(std::string raw_line);
 
 		~Parser();
 	private:
 		Parser();
 		Parser(const Parser& other);
 		Parser& operator=(const Parser& other);
-
-		// IRCPrompt prompt;
-
-		// a faire dans main
 };
 
 #endif
