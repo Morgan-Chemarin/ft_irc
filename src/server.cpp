@@ -55,4 +55,9 @@ void	Server::initServer()
 	// assosciation du socket et des informations de connexion 
 	if (bind(_serverSocket, (struct sockaddr *)&serverAdress, sizeof(serverAdress)) == -1)
 		throw ErrorBind();
+	// permet de mettre le serveur en ecoute sur le port indique avant, _serverSocket = cible, SOMAXCONN = si jamais il y a beaucoup de
+	// requetes envoyer sur le port, le serveur va creer une file d'attente, cette option est la pour indique de creer la plus grande file possible
+	if (listen(_serverSocket, SOMAXCONN) == -1)
+		throw ErrorSocketListen();
+	std::cout << "Server Init done" << std::endl;
 }

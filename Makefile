@@ -1,16 +1,25 @@
-NAME        = ircserv
-CXX         = c++
-CXXFLAGS    = -Wall -Wextra -Werror -std=c++98
+NAME = ircserv
+
+CXX = c++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -Iinc
+
+SRCS = src/main.cpp src/server.cpp
+
+OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)
 
-$(NAME): src/main.cpp
-	$(CXX) $(CXXFLAGS) main.cpp -o $(NAME)
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+
+%.o: %.cpp Makefile BitcoinExchange.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(NAME)
+	rm -f $(OBJS)
 
 fclean: clean
+	rm -f $(NAME)
 
 re: fclean all
 

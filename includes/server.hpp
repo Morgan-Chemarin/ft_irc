@@ -52,6 +52,14 @@ class Server
 					return ("Error: Unable to bind the socket to the port.");
 				}
 		};
+		class  ErrorSocketListen : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: Unable to put the socket into listening mode.");
+				}
+		};
 	private:
 		int _port;
 		std::string	_password;

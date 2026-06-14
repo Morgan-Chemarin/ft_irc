@@ -7,7 +7,14 @@ int main(int ac, char **av)
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
 		return 1;
 	}
-	std::string	password = av[2];
-	int	port = std::atoi(av[1]); // Il faudra surement faire du parsing sur le port avant de l'init
-	server	serv(port, password);
+	try
+	{
+		int	port = std::atoi(av[1]); // Il faudra surement faire du parsing sur le port avant de l'init
+		Server	serv(port, av[2]);
+		serv.initServer();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }
