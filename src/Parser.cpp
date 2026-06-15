@@ -50,18 +50,6 @@ IRCPrompt Parser::parsePrompt(std::string raw_line)
 	if (pos_last_param != std::string::npos)
         prompted.args.push_back(last_param);
 
-	//? test print struct
-	std::cout << "Prefix: " << prompted.prefix << "\n";
-    std::cout << "Command: " << prompted.command << "\n";
-    std::cout << "Args: ";
-    for (size_t i = 0; i < prompted.args.size(); i++)
-    {
-        std::cout << prompted.args[i];
-        if (i < prompted.args.size() - 1)
-            std::cout << ", ";
-    }
-    std::cout << std::endl;
-
 	return prompted;
 }
 

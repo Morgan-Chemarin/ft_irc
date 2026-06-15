@@ -31,6 +31,16 @@ class Server
 		void	initServer();
 		void	run();
 
+		Channel* getChannel(std::string const &name);
+    	void	addChannel(std::string const &name);
+
+		std::map<int, Client>& getClients();
+
+		std::string getPassword() const;
+
+		void	checkRegistration(Client &client);
+		void	sendMessage(int fd, const std::string &code, const std::string &message);
+
 		class  ErrorSocket : public std::exception
 		{
 			public:
@@ -72,9 +82,6 @@ class Server
 				}
 		};
 
-		Channel* getChannel(std::string const &name);
-    	void addChannel(std::string const &name);
-
 	private:
 		int _port;
 		std::string	_password;
@@ -104,13 +111,11 @@ class Server
 
 		void	processCLientCommand(int fd, std::string raw_line);
 
-		void	sendMessage(int fd, const std::string &code, const std::string &message);
 
 		void	checkPASS(int fd, const std::vector<std::string> &args);
 		void	checkNICK(int fd, const std::vector<std::string> &args);
 		void	checkUSER(int fd, const std::vector<std::string> &args);
 
-		void	checkRegistration(int fd);
 };
 
 #endif
