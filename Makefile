@@ -12,6 +12,7 @@ SRCS_FILES      =   main.cpp \
 					Client.cpp \
 					Parser.cpp \
 					Channel.cpp \
+					MessageBuilder.cpp \
                     commands/CommandJoin.cpp \
                     commands/CommandPass.cpp \
                     commands/CommandNick.cpp \

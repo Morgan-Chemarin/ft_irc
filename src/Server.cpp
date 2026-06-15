@@ -261,15 +261,12 @@ void	Server::run()
 	}
 }
 
-// Cette fonction permet d'envoyer un message au client via le socket, elle met aussi le \r\n a la fin du message comme le veux le protocole IRC
+// Cette fonction permet d'envoyer un message au client via le socket
 
-void	Server::sendMessage(int fd, const std::string &code, const std::string &message)
+void	Server::sendMessage(int fd, const MessageBuilder &builder)
 {
-	std::string clientNickname = _clients[fd].getNickname();
-	if (clientNickname.empty())
-		clientNickname = "*";
-	std::string reply = ":ircserv " + code + " " + clientNickname + " :" + message + "\r\n";
-	send(fd, reply.c_str(), reply.length(), 0);
+	std::string	packet = builder.build();
+	send(fd, packet.c_str(), packet.length(), 0);
 }
 
 // Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.

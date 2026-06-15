@@ -8,9 +8,17 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 {
 	if (!client.getHasPassword())
 		return ;
+	std::string target;
+	if (client.getNickname().empty())
+		target = "*";
+	else
+		target = client.getNickname();
 	if (prompt.args.empty())
 	{
-		server.sendMessage(client.getFd(), "432", ":No nickname given");
+		server.sendMessage(client.getFd(), MessageBuilder("432")
+			.setPrefix("ircserv")
+			.setParam(target)
+			.setContent("No nickname given"));
 		return ;
 	}
 	
@@ -21,7 +29,11 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 	{
 		if (it->second.getNickname() == clientNickname)
 		{
-			server.sendMessage(client.getFd(), "433", clientNickname + ": Nickname is already in use");
+			server.sendMessage(client.getFd(), MessageBuilder("433")
+			.setPrefix("ircserv")
+			.setParam(target)
+			.setParam(clientNickname)
+			.setContent("Nickname is already in use"));
 			return ;
 		}
 	}
