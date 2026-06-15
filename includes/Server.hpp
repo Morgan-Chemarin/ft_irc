@@ -16,6 +16,8 @@
 #include "Parser.hpp"
 #include "Channel.hpp"
 
+class ACommand;
+
 class Server
 {
 	public:
@@ -68,6 +70,10 @@ class Server
 					return ("Error: Unable to put the socket into listening mode.");
 				}
 		};
+
+		Channel* getChannel(std::string const &name);
+    	void addChannel(std::string const &name);
+
 	private:
 		int _port;
 		std::string	_password;
@@ -85,14 +91,17 @@ class Server
 		//la liste des channels existant <nomduchannel, Instance du channel>
 		std::map<std::string, Channel> _channels;
 
+		// la liste des functions de command lie a leur nom, init dans le constructor
+		std::map<std::string, ACommand*> _commands;
+
 		void	acceptNewClient();
 		void	receiveClientData(size_t i);
 		void	disconnectClient(size_t i);
 
-		void	processCLientCommand(int fd, std::string raw_line);
+		// init la map de funcitons de commande
+		void 	initCommands();
 
-		// les prototypes des fonctions appelé quand on trouve l'occurence de la command
-		void	cmdJoin(int fd, const IRCPrompt& prompt);
+		void	processCLientCommand(int fd, std::string raw_line);
 };
 
 #endif

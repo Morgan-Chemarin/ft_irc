@@ -12,7 +12,7 @@ SRCS_FILES      =   main.cpp \
 					Client.cpp \
 					Parser.cpp \
 					Channel.cpp \
-                    commands/JOIN.cpp
+                    commands/CommandJoin.cpp
 
 SRCS_DIR        =       src
 HEADERS_DIR     =       includes
