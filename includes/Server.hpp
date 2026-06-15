@@ -14,6 +14,7 @@
 
 #include "Client.hpp"
 #include "Parser.hpp"
+#include "Channel.hpp"
 
 class Server
 {
@@ -81,11 +82,17 @@ class Server
 		// grace a la clef (ici les fd) des map on peut directement savoir a qui il appartient
 		std::map<int, Client>	_clients;
 
+		//la liste des channels existant <nomduchannel, Instance du channel>
+		std::map<std::string, Channel> _channels;
+
 		void	acceptNewClient();
 		void	receiveClientData(size_t i);
 		void	disconnectClient(size_t i);
 
 		void	processCLientCommand(int fd, std::string raw_line);
+
+		// les prototypes des fonctions appelé quand on trouve l'occurence de la command
+		void	cmdJoin(int fd, const IRCPrompt& prompt);
 };
 
 #endif

@@ -11,7 +11,8 @@ SRCS_FILES      =   main.cpp \
 					Server.cpp \
 					Client.cpp \
 					Parser.cpp \
-					Channel.cpp
+					Channel.cpp \
+                    commands/JOIN.cpp
 
 SRCS_DIR        =       src
 HEADERS_DIR     =       includes
@@ -30,7 +31,7 @@ $(NAME): $(OBJS)
 -include $(DEPS)
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR)/%.cpp Makefile
-		@mkdir -p $(OBJ_DIR)
+		@mkdir -p $(dir $@)
 		@$(CXX) $(CXXFLAGS) -c $< -o $@
 		@echo "$(BLUE)Compiling $<$(RESET)"
 

@@ -100,6 +100,26 @@ void	Server::disconnectClient(size_t i)
 	int	fd = _pollfd[i].fd;
 	std::cout << "Client disconnected" << std::endl;
 	close(fd);
+
+	// gerer lexpulsion des channels ou il etait present
+	std::map<std::string, Channel>::iterator it = _channels.begin();
+    while (it != _channels.end())
+    {
+		// sil est dans le channel on le vire
+        if (it->second.hasMember(fd))
+            it->second.removeMember(fd);
+        
+		// sil ny a plus personne dans channel on le supprime
+        if (it->second.getMembers().empty())
+        {
+            std::map<std::string, Channel>::iterator to_delete = it;
+            ++it;
+            _channels.erase(to_delete);
+        }
+        else
+            ++it;
+    }
+
 	_clients.erase(fd);
 	_pollfd.erase(_pollfd.begin() + i);
 }
@@ -111,8 +131,7 @@ void Server::processCLientCommand(int fd, std::string raw_line) // Server& serve
 
 	// liste enum plutot ??
 	if (prompt.command == "JOIN")
-		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
-		std::cout << "Command JOIN printed." << fd << std::endl;
+		cmdJoin(fd, prompt);
 	else if (prompt.command == "KICK")
 		std::cout << "Command KICK printed." << std::endl;
 	else if (prompt.command == "INVITE")
