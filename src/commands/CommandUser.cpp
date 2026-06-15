@@ -9,14 +9,26 @@ void CommandUser::execute(Server& server, Client& client, const IRCPrompt& promp
 {
 	if (!client.getHasPassword())
 		return ;
+	std::string target;
+	if (client.getNickname().empty())
+		target = "*";
+	else
+		target = client.getNickname();
 	if (client.getIsRegistered())
 	{
-		server.sendMessage(client.getFd(), "462", ":You may not reregister");
+		server.sendMessage(client.getFd(), MessageBuilder("462")
+			.setPrefix("ircserv")
+			.setParam(target)
+			.setContent("You may not reregister"));
 		return ;
 	}
 	if (prompt.args.size() < 4) // format client USER = USER <username> <hostname> <servername> <realname>
 	{
-		server.sendMessage(client.getFd(), "461", "USER :Not enough parameters");
+		server.sendMessage(client.getFd(), MessageBuilder("461")
+			.setPrefix("ircserv")
+			.setParam(target)
+			.setParam("USER")
+			.setContent("Not enough parameters"));
 		return ;
 	}
 	

@@ -16,6 +16,7 @@
 #include "Client.hpp"
 #include "Parser.hpp"
 #include "Channel.hpp"
+#include "MessageBuilder.hpp"
 
 class ACommand;
 
@@ -39,7 +40,7 @@ class Server
 		std::string getPassword() const;
 
 		void	checkRegistration(Client &client);
-		void	sendMessage(int fd, const std::string &code, const std::string &message);
+		void	sendMessage(int fd, const MessageBuilder &builder);
 
 		class  ErrorSocket : public std::exception
 		{
