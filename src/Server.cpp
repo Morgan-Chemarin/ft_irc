@@ -83,7 +83,9 @@ void	Server::acceptNewClient()
 		return ;
 	}
 	fcntl(ClientFd, F_SETFL, O_NONBLOCK); // non bloquant
-	_clients[ClientFd] = Client(ClientFd); 
+	_clients[ClientFd] = Client(ClientFd);
+	std::string ipClient = inet_ntoa(clientAdress.sin_addr); // inet_ntoa permet de convertir l'IP en binaire en string
+	_clients[ClientFd].setIp(ipClient);
 	struct pollfd ClientPollFd;
 	ClientPollFd.fd = ClientFd;
 	ClientPollFd.events = POLLIN;
@@ -110,15 +112,24 @@ void Server::processCLientCommand(int fd, std::string raw_line) // Server& serve
 	IRCPrompt prompt = Parser::parsePrompt(raw_line);
 
 	// liste enum plutot ??
-	if (prompt.command == "JOIN")
-		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
-		std::cout << "Command JOIN printed." << fd << std::endl;
-	else if (prompt.command == "KICK")
-		std::cout << "Command KICK printed." << std::endl;
-	else if (prompt.command == "INVITE")
-		std::cout << "Command INVITE printed." << std::endl;
-	else
-		std::cout << "Command " << prompt.command << " dont exist." << std::endl;
+	if (prompt.command == "PASS")
+		checkPASS(fd, prompt.args);
+	if (prompt.command == "NICK")
+		checkNICK(fd, prompt.args);
+	if (prompt.command == "USER")
+		checkUSER(fd, prompt.args);
+	if (_clients[fd].getIsRegistered())
+	{
+		if (prompt.command == "JOIN")
+			// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
+			std::cout << "Command JOIN printed." << fd << std::endl;
+		if (prompt.command == "KICK")
+			std::cout << "Command KICK printed." << std::endl;
+		if (prompt.command == "INVITE")
+			std::cout << "Command INVITE printed." << std::endl;
+		else
+			std::cout << "Command " << prompt.command << " dont exist." << std::endl;
+	}
 }
 
 // Cette fonction gere la lecture des donnee. Son role est de prevenir la fonction disconnectClient
@@ -179,5 +190,100 @@ void	Server::run()
 				}
 			}
 		}
+	}
+}
+
+// Cette fonction permet d'envoyer un message au client via le socket, elle met aussi le \r\n a la fin du message comme le veux le protocole IRC
+
+void	Server::sendMessage(int fd, const std::string &code, const std::string &message)
+{
+	std::string clientNickname = _clients[fd].getNickname();
+	if (clientNickname.empty())
+		clientNickname = "*";
+	std::string reply = ":ircserv " + code + " " + clientNickname + " :" + message + "\r\n";
+	send(fd, reply.c_str(), reply.length(), 0);
+}
+
+// Cette fonction regarde si le client est deja enregistre, si l'arg n'est pas vide et si le password est correct
+// suite a cela il va changer la variable _hasPassword en true. Dans le cas ou une erreur survenait le programme enverrai
+// un message specifique au client
+
+void	Server::checkPASS(int fd, const std::vector<std::string> &arg)
+{
+	if (_clients[fd].getIsRegistered())
+	{
+		sendMessage(fd, "462", ":You may not reregister");
+		return ;
+	}
+	if (arg.empty())
+	{
+		sendMessage(fd, "461", ":PASS :Not enough parameters");
+		return ;
+	}
+	if (arg[0] != _password)
+	{
+		sendMessage(fd, "464", ":Password incorrect");
+		return ;
+	}
+	_clients[fd].setHasPassword(true);
+}
+
+// Cette fonction permet au client de definir un nickname, mais avant tout le client doit toujours faire le password en premier.
+// La fonction gere les doublons grace au for et a l'iterateur
+
+void	Server::checkNICK(int fd, const std::vector<std::string> &arg)
+{
+	if (!_clients[fd].getHasPassword())
+		return ;
+	if (arg.empty())
+	{
+		sendMessage(fd, "432", ":No nickname given");
+		return ;
+	}
+	std::string	clientNickname = arg[0];
+	for (std::map<int, Client>::iterator it = _clients.begin() ; it != _clients.end(); ++it)
+	{
+		if (it->second.getNickname() == clientNickname)
+		{
+			sendMessage(fd, "433", clientNickname + ": Nickname is already in use");
+		}
+	}
+	_clients[fd].setNickname(clientNickname);
+	// verifier si le processus d'enregistrement est fini avec fonction check
+}
+
+// Cette fonction permet au client de definir son username. Comme pour checkNICK elle regarde en premier si 
+// le client a rentrer le mdp puis elle regarde si la commande est au bon format et si tout est valide 
+// elle enregistre l'username
+
+void	Server::checkUSER(int fd, const std::vector<std::string> &arg)
+{
+	if (!_clients[fd].getHasPassword())
+		return ;
+	if (_clients[fd].getIsRegistered())
+	{
+		sendMessage(fd, "462", ":You may not reregister");
+		return ;
+	}
+	if (arg.size() < 4) // format client USER = USER <username> <hostname> <servername> <realname>
+	{
+		sendMessage(fd, "461", "USER :Not enough parameters");
+		return ;
+	}
+	_clients[fd].setUsername(arg[0]);
+	// verifier si le processus d'enregistrement est fini avec fonction check
+}
+
+// Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.
+// Si oui elle va mettre le bool _isRegistered a true et donc le client pourra executer d'autres commandes
+
+void	Server::checkRegistration(int fd)
+{
+	Client &client = _clients[fd];
+
+	if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
+	{
+		client.setIsRegistered(true);
+		// envoyer message de bienvenue au client
 	}
 }
