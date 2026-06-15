@@ -4,21 +4,27 @@
 #include <string>
 #include <map>
 
+#include "Client.hpp"
+
 class Channel
 {
 	public:
 		Channel();
+		Channel(const std::string& name);
 		Channel(const Channel& other);
 		Channel& operator=(const Channel& other);
 		~Channel();
 
-		// add client to channel
-		// remove client to channel
-		// gerer mode
-		// stocke TOPIC
-
+		std::string getName() const;
+        const std::map<int, Client*> &getMembers() const;
+		
+		void addMember(Client *client);
+        void removeMember(int fd);
+        bool hasMember(int fd) const;
+		
 	private:
-		// std::map<int, Client*> clientsList;
+		std::string _name;
+		std::map<int, Client*> _membersList;
 		// std::map<int, Client*> operatorsList;
 
 };

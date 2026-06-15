@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include "ACommand.hpp"
+#include "CommandJoin.hpp"
 
 Server::Server()
 {}
@@ -8,6 +10,8 @@ Server::Server(int port, std::string password)
 	_port = port;
 	_password = password;
 	_serverSocket = -1;
+
+	initCommands();
 }
 
 Server::Server(const Server &src)
@@ -15,6 +19,8 @@ Server::Server(const Server &src)
 	_port = src._port;
 	_password = src._password;
 	_serverSocket = src._serverSocket;
+
+	initCommands();
 }
 
 Server	&Server::operator=(const Server &src)
@@ -32,6 +38,16 @@ Server::~Server()
 {
 	if (_serverSocket != -1)
 		close(_serverSocket);
+
+	// pour vider la map de commande ala destrutcion
+	std::map<std::string, ACommand*>::iterator it;
+	for (it = _commands.begin(); it != _commands.end(); ++it) {
+		delete it->second;
+	}
+}
+
+void Server::initCommands() {
+	_commands["JOIN"] = new CommandJoin();
 }
 
 void	Server::initServer()
@@ -102,15 +118,54 @@ void	Server::disconnectClient(size_t i)
 	int	fd = _pollfd[i].fd;
 	std::cout << "Client disconnected" << std::endl;
 	close(fd);
+
+	// gerer lexpulsion des channels ou il etait present
+	std::map<std::string, Channel>::iterator it = _channels.begin();
+	while (it != _channels.end())
+	{
+		// sil est dans le channel on le vire
+		if (it->second.hasMember(fd))
+			it->second.removeMember(fd);
+		
+		// sil ny a plus personne dans channel on le supprime
+		if (it->second.getMembers().empty())
+		{
+			std::map<std::string, Channel>::iterator to_delete = it;
+			++it;
+			_channels.erase(to_delete);
+		}
+		else
+			++it;
+	}
+
 	_clients.erase(fd);
 	_pollfd.erase(_pollfd.begin() + i);
 }
 
-//!
-void Server::processCLientCommand(int fd, std::string raw_line) // Server& server, Client& client (ajouter comme arguement)
+void Server::addChannel(std::string const &name)
+{
+	_channels[name] = Channel(name);
+}
+
+Channel* Server::getChannel(std::string const &name)
+{
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	if (it == _channels.end())
+		return NULL;
+	return &(it->second);
+}
+
+// on parse le prompt dans une struct et on cherche dans la map e command on on a une correspondance
+// si il y en a une on execute la fonction execute du 2eme element (Command *)
+void Server::processCLientCommand(int fd, std::string raw_line)
 {
 	IRCPrompt prompt = Parser::parsePrompt(raw_line);
+	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
 
+	if (it != _commands.end())
+        it->second->execute(*this, _clients[fd], prompt);
+    else
+        std::cout << "Command " << prompt.command << " doesn't exist." << std::endl;
 	// liste enum plutot ??
 	if (prompt.command == "PASS")
 		checkPASS(fd, prompt.args);
