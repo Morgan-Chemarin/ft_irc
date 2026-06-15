@@ -10,7 +10,8 @@ BLUE            =   \033[34m
 SRCS_FILES      =   main.cpp \
 					Server.cpp \
 					Client.cpp \
-					Parser.cpp 
+					Parser.cpp \
+					Channel.cpp
 
 SRCS_DIR        =       src
 HEADERS_DIR     =       includes

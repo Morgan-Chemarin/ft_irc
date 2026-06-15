@@ -1,7 +1,13 @@
-#include "../includes/Server.hpp"
+#include "Server.hpp"
+#include "Channel.hpp"
 
 int main(int ac, char **av)
 {
+	Client bob(3);
+	Channel room1("room1");
+	room1.addMember(&bob);
+	std::cout << room1.hasMember(3);
+
 	if (ac != 3)
 	{
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
