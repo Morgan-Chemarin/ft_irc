@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include "Client.hpp"
 #include "Parser.hpp"
@@ -102,6 +103,14 @@ class Server
 		void 	initCommands();
 
 		void	processCLientCommand(int fd, std::string raw_line);
+
+		void	sendMessage(int fd, const std::string &code, const std::string &message);
+
+		void	checkPASS(int fd, const std::vector<std::string> &args);
+		void	checkNICK(int fd, const std::vector<std::string> &args);
+		void	checkUSER(int fd, const std::vector<std::string> &args);
+
+		void	checkRegistration(int fd);
 };
 
 #endif
