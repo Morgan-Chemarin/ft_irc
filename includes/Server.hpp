@@ -93,6 +93,8 @@ class Server
 		void	checkPASS(int fd, const std::vector<std::string> &args);
 		void	checkNICK(int fd, const std::vector<std::string> &args);
 		void	checkUSER(int fd, const std::vector<std::string> &args);
+
+		void	checkRegistration(int fd);
 };
 
 #endif

@@ -118,15 +118,18 @@ void Server::processCLientCommand(int fd, std::string raw_line) // Server& serve
 		checkNICK(fd, prompt.args);
 	if (prompt.command == "USER")
 		checkUSER(fd, prompt.args);
-	else if (prompt.command == "JOIN")
-		// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
-		std::cout << "Command JOIN printed." << fd << std::endl;
-	else if (prompt.command == "KICK")
-		std::cout << "Command KICK printed." << std::endl;
-	else if (prompt.command == "INVITE")
-		std::cout << "Command INVITE printed." << std::endl;
-	else
-		std::cout << "Command " << prompt.command << " dont exist." << std::endl;
+	if (_clients[fd].getIsRegistered())
+	{
+		if (prompt.command == "JOIN")
+			// on appellera demain un truc comme ca: server.executeJoin(client, prompt.args)
+			std::cout << "Command JOIN printed." << fd << std::endl;
+		if (prompt.command == "KICK")
+			std::cout << "Command KICK printed." << std::endl;
+		if (prompt.command == "INVITE")
+			std::cout << "Command INVITE printed." << std::endl;
+		else
+			std::cout << "Command " << prompt.command << " dont exist." << std::endl;
+	}
 }
 
 // Cette fonction gere la lecture des donnee. Son role est de prevenir la fonction disconnectClient
@@ -269,4 +272,18 @@ void	Server::checkUSER(int fd, const std::vector<std::string> &arg)
 	}
 	_clients[fd].setUsername(arg[0]);
 	// verifier si le processus d'enregistrement est fini avec fonction check
+}
+
+// Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.
+// Si oui elle va mettre le bool _isRegistered a true et donc le client pourra executer d'autres commandes
+
+void	Server::checkRegistration(int fd)
+{
+	Client &client = _clients[fd];
+
+	if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
+	{
+		client.setIsRegistered(true);
+		// envoyer message de bienvenue au client
+	}
 }
