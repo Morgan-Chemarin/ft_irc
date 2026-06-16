@@ -178,6 +178,12 @@ void	Server::disconnectClient(size_t i)
 void Server::processCLientCommand(int fd, std::string raw_line)
 {
 	IRCPrompt prompt = Parser::parsePrompt(raw_line);
+	
+	if (prompt.command == "CAP")
+	{
+    	return;  //! enlever le warning de cap sans auth
+	}
+
 	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
 
 	// si la commande existe pas
@@ -266,6 +272,7 @@ void	Server::run()
 void	Server::sendMessage(int fd, const MessageBuilder &builder)
 {
 	std::string	packet = builder.build();
+	std::cout << packet << std::endl;
 	send(fd, packet.c_str(), packet.length(), 0);
 }
 
@@ -275,16 +282,13 @@ void	Server::sendMessage(int fd, const MessageBuilder &builder)
 void Server::checkRegistration(Client &client)
 {
     if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
+    {
         client.setIsRegistered(true);
+
+		// visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
+		sendMessage(client.getFd(), MessageBuilder("001")
+        .setPrefix("ircserv")
+		.setParam(client.getNickname())
+        .setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+    }
 }
-
-// void	Server::checkRegistration(int fd)
-// {
-// 	Client &client = _clients[fd];
-
-// 	if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
-// 	{
-// 		client.setIsRegistered(true);
-// 		// envoyer message de bienvenue au client
-// 	}
-// }

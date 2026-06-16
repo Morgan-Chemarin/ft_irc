@@ -111,12 +111,6 @@ class Server
 		void 	initCommands();
 
 		void	processCLientCommand(int fd, std::string raw_line);
-
-
-		void	checkPASS(int fd, const std::vector<std::string> &args);
-		void	checkNICK(int fd, const std::vector<std::string> &args);
-		void	checkUSER(int fd, const std::vector<std::string> &args);
-
 };
 
 #endif
