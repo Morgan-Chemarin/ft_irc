@@ -37,7 +37,9 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 	{
 		server.addChannel(channelName);
 		chan = server.getChannel(channelName);
-		std::cout << "Le client a cree la room " << channelName << std::endl; // ?test
+		std::cout << "Le client a cree la room " << channelName << std::endl;
+	
+		chan->addOperator(client.getFd()); // pou mettre le createur operator
 	}
 
 	// check si le fd nest pas deja dans le channel
