@@ -3,6 +3,7 @@
 
 void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
+	//! JOIN 0
 	if (prompt.args.empty()) 
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("461")

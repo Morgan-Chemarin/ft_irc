@@ -12,7 +12,12 @@
 void CommandMode::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	(void)client;
-	// 461 ERR_NEEDMOREPARAMS
+
+	if (prompt.args.empty())
+	{
+		// 461 ERR_NEEDMOREPARAMS
+		return ;
+	}
 
 	std::string chanName = prompt.args[0];
 	Channel* chan = server.getChannel(chanName);
@@ -25,6 +30,12 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 	// 442 ERR_NOTONCHANNEL si le client nes tpas sur le channel
 
 	// 482 ERR_CHANOPRIVSNEEDED si le client nest pas operator sur le channel
+
+	if (prompt.args.size() == 1)
+	{
+		// hexchat demande qudn on join denvoyer RPL_CHANNELMODEIS et RPL_CREATIONTIME
+		return ;
+	}
 
 	bool sign = true;
 	std::string modeString = prompt.args[1];

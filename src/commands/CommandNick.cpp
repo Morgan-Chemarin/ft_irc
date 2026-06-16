@@ -38,6 +38,13 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 		}
 	}
 	
+	std::string oldPrefix = client.getPrefix();
 	client.setNickname(clientNickname);
+
+	server.sendMessage(client.getFd(), MessageBuilder("NICK")
+        .setPrefix(oldPrefix)
+        .setContent(clientNickname));
+	// TODO faudra annoncer le changement a tous les membres de tout les channels ou il est
+
 	server.checkRegistration(client); // verifier si le processus d'enregistrement est fini avec fonction check
 }
