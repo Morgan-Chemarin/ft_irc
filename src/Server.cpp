@@ -305,5 +305,11 @@ void Server::checkRegistration(Client &client)
 		.setPrefix("ircserv")
 		.setParam(client.getNickname())
 		.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+
+		// TODO: 002
+		// TODO: 003
+		// TODO: 004
+
+		// TODO: ?? ERR_NOMOTD RPL_ENDOFMOTD
 	}
 }

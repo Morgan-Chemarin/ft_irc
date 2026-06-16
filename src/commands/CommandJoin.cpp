@@ -4,6 +4,9 @@
 void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	//! JOIN 0
+	//! ERR_INVITEONLYCHAN si loptinon +i est  active
+	//! ERR_BADCHANNELKEY si mdp faux
+	//! ERR_CHANNELISFULL si le channel est plein
 	if (prompt.args.empty()) 
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("461")
@@ -76,6 +79,8 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
     for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 	{
 		//! ajouter un @ pour que le client comprennent qui est operator (demain avec mode)
+		if (chan->isOperator(it->second->getFd()))
+			userList += "@";
         userList += it->second->getNickname() + " ";
 	}
 

@@ -124,5 +124,5 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 	}
 
 	// broadcast des changements 
-
+	// Admin!user@host MODE #channel +o Momo
 }
