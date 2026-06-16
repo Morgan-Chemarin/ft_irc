@@ -5,6 +5,7 @@
 #include "CommandNick.hpp"
 #include "CommandUser.hpp"
 #include "CommandPrivmsg.hpp"
+#include "CommandKick.hpp"
 
 Server::Server()
 {}
@@ -58,6 +59,7 @@ void Server::initCommands() {
     _commands["NICK"] = new CommandNick();
     _commands["USER"] = new CommandUser();
 	_commands["PRIVMSG"] = new CommandPrivmsg();
+	_commands["KICK"] = new CommandKick();
 }
 
 void Server::addChannel(std::string const &name)
