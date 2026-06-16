@@ -1,10 +1,40 @@
 #include "CommandPrivmsg.hpp"
 #include "Server.hpp"
 
-// void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuider)
-// {
+// Si il y a un # devant la cible lors d'un appel de PRIVMSG alors on doit envoye le message a un channel
 
-// }
+void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuider)
+{
+	Channel *channel = server.getChannel(target);
+	if (channel == NULL)
+	{
+		server.sendMessage(client.getFd(), MessageBuilder("401")
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam(target)
+			.setContent("No such nick/channel"));
+		return ;
+	}
+	// on verifie que le client qui veut envoyer un message sur le channel fait bien partie de celui-ci
+	if (!channel->hasMember(client.getFd()))
+	{
+		server.sendMessage(client.getFd(), MessageBuilder("404")
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam(target)
+			.setContent("Cannot send to channel"));
+		return ;
+	}
+	// on renseigne tout les membres du channel dans une map puis ensuite grace a cette map on leur envoie tous le message
+	std::map<int, Client*> members = channel->getMembers();
+	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
+	{
+		// on verifie bien que le fd n'est pas celui du client qui envoie le message car il ne dois pas le recevoir
+		if (it->first != client.getFd())
+			server.sendMessage(it->first, msgBuider);
+	}
+	
+}
 
 // cette fonction permet d'envoyer un message au client cible 
 
@@ -52,8 +82,7 @@ void	CommandPrivmsg::execute(Server &server, Client &client, const IRCPrompt &pr
 		.setParam(target)
 		.setContent(text);
 	if (target[0] == '#')
-		//sendToChannel(server, client, target, msgBuilder);
-		return ; // temporaire
+		sendToChannel(server, client, target, msgBuilder);
 	else
 		sendToUser(server, client, target, msgBuilder);
 }
