@@ -4,6 +4,7 @@
 #include "CommandPass.hpp"
 #include "CommandNick.hpp"
 #include "CommandUser.hpp"
+#include "CommandPrivmsg.hpp"
 
 Server::Server()
 {}
@@ -56,6 +57,7 @@ void Server::initCommands() {
     _commands["PASS"] = new CommandPass();
     _commands["NICK"] = new CommandNick();
     _commands["USER"] = new CommandUser();
+	_commands["PRIVMSG"] = new CommandPrivmsg();
 }
 
 void Server::addChannel(std::string const &name)
@@ -276,6 +278,18 @@ void	Server::sendMessage(int fd, const MessageBuilder &builder)
 	send(fd, packet.c_str(), packet.length(), 0);
 }
 
+// Cette fonction permet de recuperer la fiche client et donc le fd grace a son nickname
+
+Client	*Server::getClientWithNick(const std::string &nickname)
+{
+	for (std::map<int, Client>::iterator it =_clients.begin(); it != _clients.end() ; ++it)
+	{
+		if (it->second.getNickname() == nickname)
+			return (&(it->second));
+	}
+	return (NULL);
+}
+
 // Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.
 // Si oui elle va mettre le bool _isRegistered a true et donc le client pourra executer d'autres commandes
 
@@ -287,8 +301,8 @@ void Server::checkRegistration(Client &client)
 
 		// visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
 		sendMessage(client.getFd(), MessageBuilder("001")
-        .setPrefix("ircserv")
-		.setParam(client.getNickname())
-        .setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+        	.setPrefix("ircserv")
+			.setParam(client.getNickname())
+        	.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
     }
 }
