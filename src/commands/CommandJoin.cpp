@@ -72,7 +72,7 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 	std::string userList = "";
     for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 	{
-		// ajouter un @ pour que le client comprennent qui est operator (demain avec mode)
+		//! ajouter un @ pour que le client comprennent qui est operator (demain avec mode)
         userList += it->second->getNickname() + " ";
 	}
 

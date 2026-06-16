@@ -16,6 +16,7 @@ SRCS_FILES      =   main.cpp \
                     commands/CommandJoin.cpp \
                     commands/CommandPass.cpp \
                     commands/CommandNick.cpp \
+                    commands/CommandMode.cpp \
                     commands/CommandUser.cpp
 
 SRCS_DIR        =       src

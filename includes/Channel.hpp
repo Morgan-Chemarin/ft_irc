@@ -3,9 +3,10 @@
 
 #include <string>
 #include <map>
+#include <set>
+#include <sys/socket.h>
 
 #include "Client.hpp"
-#include <sys/socket.h>
 
 class Channel
 {
@@ -22,11 +23,34 @@ class Channel
 		void addMember(Client *client);
         void removeMember(int fd);
         bool hasMember(int fd) const;
-		
+
+		bool getInviteOnly() const;
+		void setInviteOnly(bool);
+
+		bool getTopicProtected() const;
+		void setTopicProtected(bool);
+
+		void setKey(std::string key);
+		void unsetKey();
+
+		void setLimitUsers(int limit);
+		void unsetLimitUsers();
+
+		void addOperator(int fd);
+		void removeOperator(int fd);
+
+		bool isOperator(int fd) const;
+
 	private:
 		std::string _name;
 		std::map<int, Client*> _membersList;
-		// std::map<int, Client*> operatorsList;
+		
+		// option mode
+		bool _isInviteOnly;
+		bool _isTopicProtected;
+		std::string _key;
+		int _limitUsers;
+		std::set<int> _operatorList;
 
 };
 

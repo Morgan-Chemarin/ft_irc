@@ -36,6 +36,7 @@ class Server
     	void	addChannel(std::string const &name);
 
 		std::map<int, Client>& getClients();
+		Client* getClientByNickname(const std::string& nickname);
 
 		std::string getPassword() const;
 
