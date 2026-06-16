@@ -227,11 +227,22 @@ void	Server::receiveClientData(size_t i)
 	{
 		_clients[fd].appendBuffer(buffer);
 		std::string	current = _clients[fd].getBuffer();
-		if (current.find('\n') != std::string::npos) // chaque commande doit se terminer par un retour a la ligne
+		size_t	pos;
+		// on creer une boucle pour pouvoir traiter plusieurs commandes envoye en un
+		// seul paquet, chaque commande est separe d'un \n
+		while ((pos = current.find("\n")) != std::string::npos)
 		{
-			this->processCLientCommand(fd, current); // appel la fonction de parsing et de redirection des commandes
-			_clients[fd].clearBuffer();
+			std::string command = current.substr(0, pos); // on enleve le \n de la commande
+			// on enleve le \r si il existe
+			if (!command.empty() && command[command.length() - 1] == '\r')
+				command.erase(command.length() - 1);
+			processCLientCommand(fd, command);
+			current.erase(0, pos + 1);
 		}
+		// si jamais la commande est recu en deux paquet alors on sotck la premiere partie dans le buffer
+		// du client pour qu'a la reception du prochain paquet on ai la commande entiere
+		_clients[fd].clearBuffer();
+		_clients[fd].appendBuffer(current);
 	}
 }
 
