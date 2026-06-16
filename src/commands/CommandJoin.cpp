@@ -67,7 +67,7 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
             .setParam(channelName));
     }
 
-	// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut)
+	// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut // A FAIRE QUAND MERGE TOPIC )
 	server.sendMessage(client.getFd(), MessageBuilder("332")
         .setPrefix("ircserv")
         .setParam(client.getNickname())
@@ -78,7 +78,6 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 	std::string userList = "";
     for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 	{
-		//! ajouter un @ pour que le client comprennent qui est operator (demain avec mode)
 		if (chan->isOperator(it->second->getFd()))
 			userList += "@";
         userList += it->second->getNickname() + " ";
