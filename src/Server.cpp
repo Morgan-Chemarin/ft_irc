@@ -178,6 +178,12 @@ void	Server::disconnectClient(size_t i)
 void Server::processCLientCommand(int fd, std::string raw_line)
 {
 	IRCPrompt prompt = Parser::parsePrompt(raw_line);
+	
+	if (prompt.command == "CAP")
+	{
+    	return;  //! enlever le warning de cap sans auth
+	}
+
 	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
 
 	// si la commande existe pas

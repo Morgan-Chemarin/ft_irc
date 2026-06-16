@@ -69,9 +69,32 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
         .setParam(channelName)
         .setContent("Bienvenue sur " + channelName));
 
+	// envoyer la liste les membres du channel
+	std::string userList = "";
+    for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
+	{
+		// ajouter un @ pour que le client comprennent qui est operator (demain avec mode)
+        userList += it->second->getNickname() + " ";
+	}
 
-	//? envoyer les messages IRC avec send
-	// RPL_JOIN, RPL_NAMREPLY, ERR_NEEDMOREPARAMS
+	// del le derniere espace pas beau
+	if (!userList.empty())
+        userList.erase(userList.size() - 1);
 
-	// sendMsg(fd, msg) ?;
+	// pour envoyer la liste des membres sur le channel
+	server.sendMessage(client.getFd(), MessageBuilder("353")
+        .setPrefix("ircserv")
+        .setParam(client.getNickname())
+        .setParam("=") // ce vilain egale cets pour dire que le channel est public 
+        .setParam(channelName)
+        .setContent(userList));
+
+    // obligatoir pour dire quon a fini de donner la liste de mebmres
+    server.sendMessage(client.getFd(), MessageBuilder("366")
+        .setPrefix("ircserv")
+        .setParam(client.getNickname())
+        .setParam(channelName)
+        .setContent("End of /NAMES list"));
 }
+
+//? BROADCAST -> RPL_TOPIC ( 332 ou lautre 331 ) -> RPL_NAMEREPLY ( 353 ) -> RPL_ENDOFNAMES ( 366 )
