@@ -59,7 +59,7 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
     {
         server.sendMessage(it->first, MessageBuilder("JOIN")
             .setPrefix(userPrefix)
-            .setContent(channelName));
+            .setParam(channelName));
     }
 
 	// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut)
