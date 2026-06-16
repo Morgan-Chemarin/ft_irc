@@ -32,9 +32,13 @@ class Channel
 
 		void setKey(std::string key);
 		void unsetKey();
+		bool hasKey() const;
+		const std::string& getKey() const;
 
 		void setLimitUsers(int limit);
 		void unsetLimitUsers();
+		bool hasLimit() const;
+		int getLimitUsers() const;
 
 		void addOperator(int fd);
 		void removeOperator(int fd);

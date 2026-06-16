@@ -101,6 +101,16 @@ void Channel::unsetKey()
 	_key = "";
 }
 
+bool Channel::hasKey() const
+{
+	return !_key.empty();
+}
+
+const std::string& Channel::getKey() const
+{
+	return _key;
+}
+
 void Channel::setLimitUsers(int limit)
 {
 	_limitUsers = limit;
@@ -109,6 +119,16 @@ void Channel::setLimitUsers(int limit)
 void Channel::unsetLimitUsers()
 {
 	_limitUsers = 0;
+}
+
+bool Channel::hasLimit() const
+{
+	return _limitUsers > 0;
+}
+
+int Channel::getLimitUsers() const
+{
+	return _limitUsers;
 }
 
 void Channel::addOperator(int fd)
