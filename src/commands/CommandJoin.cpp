@@ -1,6 +1,5 @@
 #include "CommandJoin.hpp"
 #include "Server.hpp"
-#include <iostream>
 
 void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {

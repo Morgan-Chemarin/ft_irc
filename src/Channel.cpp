@@ -1,5 +1,4 @@
 #include "Channel.hpp"
-#include <sys/socket.h>
 
 Channel::Channel(): _name("")
 {

@@ -4,6 +4,7 @@
 #include "CommandPass.hpp"
 #include "CommandNick.hpp"
 #include "CommandUser.hpp"
+#include "CommandMode.hpp"
 
 Server::Server()
 {}
@@ -56,6 +57,7 @@ void Server::initCommands() {
     _commands["PASS"] = new CommandPass();
     _commands["NICK"] = new CommandNick();
     _commands["USER"] = new CommandUser();
+    _commands["MODE"] = new CommandMode();
 }
 
 void Server::addChannel(std::string const &name)

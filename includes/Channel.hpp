@@ -5,6 +5,7 @@
 #include <map>
 
 #include "Client.hpp"
+#include <sys/socket.h>
 
 class Channel
 {
