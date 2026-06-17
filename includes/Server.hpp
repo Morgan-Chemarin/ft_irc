@@ -42,6 +42,8 @@ class Server
 		void	checkRegistration(Client &client);
 		void	sendMessage(int fd, const MessageBuilder &builder);
 
+		Client	*getClientWithNick(const std::string &nickname);
+
 		class  ErrorSocket : public std::exception
 		{
 			public:

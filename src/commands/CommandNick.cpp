@@ -37,7 +37,7 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 			return ;
 		}
 	}
-	
+
 	client.setNickname(clientNickname);
 	server.checkRegistration(client); // verifier si le processus d'enregistrement est fini avec fonction check
 }

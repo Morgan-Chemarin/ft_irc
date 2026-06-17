@@ -51,14 +51,12 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 			  << ") a rejoint le channel " << channelName << std::endl;
 
 	// broadcast pour envoyer a tous les membres du channel linf oque quelquun a rejoint
-	// :Momo!user@host JOIN #channel
-	std::string userPrefix = client.getNickname() + "!" + client.getUsername() + "@localhost";
     const std::map<int, Client*>& members = chan->getMembers();
 	// on droadcats a TOUT le monde, celui qui rejoint aussi
 	for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
     {
         server.sendMessage(it->first, MessageBuilder("JOIN")
-            .setPrefix(userPrefix)
+            .setPrefix(client.getPrefix())
             .setParam(channelName));
     }
 

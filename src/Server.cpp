@@ -4,6 +4,9 @@
 #include "CommandPass.hpp"
 #include "CommandNick.hpp"
 #include "CommandUser.hpp"
+#include "CommandPrivmsg.hpp"
+#include "CommandKick.hpp"
+#include "CommandTopic.hpp"
 
 Server::Server()
 {}
@@ -54,8 +57,11 @@ Server::~Server()
 void Server::initCommands() {
 	_commands["JOIN"] = new CommandJoin();
     _commands["PASS"] = new CommandPass();
+	_commands["TOPIC"] = new CommandTopic();
     _commands["NICK"] = new CommandNick();
     _commands["USER"] = new CommandUser();
+	_commands["PRIVMSG"] = new CommandPrivmsg();
+	_commands["KICK"] = new CommandKick();
 }
 
 void Server::addChannel(std::string const &name)
@@ -223,11 +229,22 @@ void	Server::receiveClientData(size_t i)
 	{
 		_clients[fd].appendBuffer(buffer);
 		std::string	current = _clients[fd].getBuffer();
-		if (current.find('\n') != std::string::npos) // chaque commande doit se terminer par un retour a la ligne
+		size_t	pos;
+		// on creer une boucle pour pouvoir traiter plusieurs commandes envoye en un
+		// seul paquet, chaque commande est separe d'un \n
+		while ((pos = current.find("\n")) != std::string::npos)
 		{
-			this->processCLientCommand(fd, current); // appel la fonction de parsing et de redirection des commandes
-			_clients[fd].clearBuffer();
+			std::string command = current.substr(0, pos); // on enleve le \n de la commande
+			// on enleve le \r si il existe
+			if (!command.empty() && command[command.length() - 1] == '\r')
+				command.erase(command.length() - 1);
+			processCLientCommand(fd, command);
+			current.erase(0, pos + 1);
 		}
+		// si jamais la commande est recu en deux paquet alors on sotck la premiere partie dans le buffer
+		// du client pour qu'a la reception du prochain paquet on ai la commande entiere
+		_clients[fd].clearBuffer();
+		_clients[fd].appendBuffer(current);
 	}
 }
 
@@ -276,6 +293,18 @@ void	Server::sendMessage(int fd, const MessageBuilder &builder)
 	send(fd, packet.c_str(), packet.length(), 0);
 }
 
+// Cette fonction permet de recuperer la fiche client et donc le fd grace a son nickname
+
+Client	*Server::getClientWithNick(const std::string &nickname)
+{
+	for (std::map<int, Client>::iterator it =_clients.begin(); it != _clients.end() ; ++it)
+	{
+		if (it->second.getNickname() == nickname)
+			return (&(it->second));
+	}
+	return (NULL);
+}
+
 // Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.
 // Si oui elle va mettre le bool _isRegistered a true et donc le client pourra executer d'autres commandes
 
@@ -287,8 +316,8 @@ void Server::checkRegistration(Client &client)
 
 		// visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
 		sendMessage(client.getFd(), MessageBuilder("001")
-        .setPrefix("ircserv")
-		.setParam(client.getNickname())
-        .setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+        	.setPrefix("ircserv")
+			.setParam(client.getNickname())
+        	.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
     }
 }
