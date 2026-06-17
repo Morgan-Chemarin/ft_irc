@@ -9,6 +9,7 @@
 #include "CommandKick.hpp"
 #include "CommandTopic.hpp"
 #include "CommandPing.hpp"
+#include "CommandInvite.hpp"
 
 Server::Server()
 {}
@@ -66,6 +67,7 @@ void Server::initCommands() {
 	_commands["KICK"] = new CommandKick();
 	_commands["MODE"] = new CommandMode();
 	_commands["PING"] = new CommandPing();
+	_commands["INVITE"] = new CommandInvite();
 }
 
 void Server::addChannel(std::string const &name)
