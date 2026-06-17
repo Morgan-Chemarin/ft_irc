@@ -1,44 +1,43 @@
-NAME                    =   ircserv
-CXX                             =   c++
-CXXFLAGS                =   -Wall -Wextra -Werror -std=c++98 -I$(HEADERS_DIR) -MMD -MP
+NAME			=	ircserv
+CXX				=	c++
+CXXFLAGS		=	-Wall -Wextra -Werror -std=c++98 -I$(HEADERS_DIR) -MMD -MP
 
-RESET           =   \033[0m
-RED             =   \033[31m
-GREEN           =   \033[32m
-BLUE            =   \033[34m
+RESET			=	\033[0m
+RED				=	\033[31m
+GREEN			=	\033[32m
+BLUE			=	\033[34m
 
-SRCS_FILES      =   main.cpp \
+SRCS_FILES		=	main.cpp \
 					Server.cpp \
 					Client.cpp \
 					Parser.cpp \
 					Channel.cpp \
 					MessageBuilder.cpp \
-                    commands/CommandJoin.cpp \
+					commands/CommandJoin.cpp \
 					commands/CommandKick.cpp \
 					commands/CommandTopic.cpp \
-                    commands/CommandPass.cpp \
+					commands/CommandPass.cpp \
 					commands/CommandPrivmsg.cpp \
-                    commands/CommandNick.cpp \
-                    commands/CommandMode.cpp \
-                    commands/CommandPing.cpp \
-                    commands/CommandInvite.cpp \
-                    commands/CommandUser.cpp
-                    commands/CommandUser.cpp \
+					commands/CommandNick.cpp \
+					commands/CommandMode.cpp \
+					commands/CommandPing.cpp \
+					commands/CommandInvite.cpp \
+					commands/CommandUser.cpp \
 					commands/CommandPart.cpp
 
-SRCS_DIR        =       src
-HEADERS_DIR     =       includes
-OBJ_DIR			=       obj
+SRCS_DIR		=	src
+HEADERS_DIR		=	includes
+OBJ_DIR			=	obj
 
-SRCS			=       $(addprefix $(SRCS_DIR)/, $(SRCS_FILES))
-OBJS			=       $(addprefix $(OBJ_DIR)/, $(SRCS_FILES:.cpp=.o))
-DEPS            =       $(OBJS:.o=.d)
+SRCS			=	$(addprefix $(SRCS_DIR)/, $(SRCS_FILES))
+OBJS			=	$(addprefix $(OBJ_DIR)/, $(SRCS_FILES:.cpp=.o))
+DEPS			=	$(OBJS:.o=.d)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-				@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
-				@echo "$(GREEN)Successfully compiled [$(NAME)]$(RESET)"
+			@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+			@echo "$(GREEN)Successfully compiled [$(NAME)]$(RESET)"
 
 -include $(DEPS)
 
