@@ -14,73 +14,45 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 	}
 
 	if (prompt.args[0] == "0")
-	{
-		//! PART sur tous les channels 
-		return;
-	}
+    {
+        //! PART sur tous les channels 
+        return;
+    }
 
 	// le premier arguement ou ya le nom du channel peut etre composé de plueirus channel 
 	// ex = JOIN room1,room2...
-	std::vector<std::string> channels;
-	std::vector<std::string> keys;
+    std::vector<std::string> channels;
+    std::vector<std::string> keys;
 
 	// om separe les channels dans le vector
 	std::stringstream ssChan(prompt.args[0]);
-	std::string tokenChan;
-	while (std::getline(ssChan, tokenChan, ','))
+    std::string tokenChan;
+    while (std::getline(ssChan, tokenChan, ','))
 	{
-		channels.push_back(tokenChan);
+        channels.push_back(tokenChan);
 	}
 
 	// pareil pour les mots de passe (le deuxieme param) 
 	if (prompt.args.size() > 1)
-	{
-		std::stringstream ssKeys(prompt.args[1]);
-		std::string tokenKey;
-		while (std::getline(ssKeys, tokenKey, ','))
-			keys.push_back(tokenKey);
-	}
-
-	// check si le fd nest pas deja dans le channel
-	if (chan->hasMember(client.getFd()))
-		return;
-
-	// on recupere le pointeur du client pour lajouter dans le channel ( que lon vient de creer ou non )
-	chan->addMember(&client);
-	std::cout << "Le client " << client.getNickname() << " (fd " << client.getFd() 
-			  << ") a rejoint le channel " << channelName << std::endl;
-
-	// broadcast pour envoyer a tous les membres du channel linf oque quelquun a rejoint
-    const std::map<int, Client*>& members = chan->getMembers();
-	// on droadcats a TOUT le monde, celui qui rejoint aussi
-	for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
     {
-        server.sendMessage(it->first, MessageBuilder("JOIN")
-            .setPrefix(client.getPrefix())
-            .setParam(channelName));
+        std::stringstream ssKeys(prompt.args[1]);
+        std::string tokenKey;
+        while (std::getline(ssKeys, tokenKey, ','))
+            keys.push_back(tokenKey);
     }
 
-	// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut)
-	server.sendMessage(client.getFd(), MessageBuilder("332")
-        .setPrefix("ircserv")
-        .setParam(client.getNickname())
-        .setParam(channelName)
-        .setContent("Bienvenue sur " + channelName));
-
-	// envoyer la liste les membres du channel
-	std::string userList = "";
-    for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
+	// on bouvle sur outs les channels a rejoindre
+	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		std::string channelName = channels[i];
-		std::string key = "";
+        std::string key = "";
 
-		// si on a une key au meme index que le channel
 		if (i < keys.size())
 			key = keys[i];
 
 		// check le nom du channel doit commencer par un caractere speciale/pas despace
 		if (channelName.empty() || (channelName[0] != '#' && channelName[0] != '&' && channelName[0] != '+' && channelName[0] != '!'))
-		{
+        {
 			server.sendMessage(client.getFd(), MessageBuilder("476")
 				.setPrefix("ircserv")
 				.setParam(client.getNickname())
@@ -107,37 +79,37 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 
 			// si le channel est en inviteOnly on verifie si notre client est invite
 			if (chan->getInviteOnly())
-			{
-				//! verifier si le client est invite (mode +i) INVITE
-				server.sendMessage(client.getFd(), MessageBuilder("473")
-					.setPrefix("ircserv")
-					.setParam(client.getNickname())
-					.setParam(channelName)
-					.setContent("Cannot join channel (+i)"));
-				continue ;
-			}
+            {
+                //! verifier si le client est invite (mode +i) INVITE
+                server.sendMessage(client.getFd(), MessageBuilder("473")
+                    .setPrefix("ircserv")
+                    .setParam(client.getNickname())
+                    .setParam(channelName)
+                    .setContent("Cannot join channel (+i)"));
+                continue ;
+            }
 
 			// si le channel a besoin dun mdp, si cest pas le bon 
 			if (chan->hasKey() && chan->getKey() != key)
-			{
-				server.sendMessage(client.getFd(), MessageBuilder("475")
-					.setPrefix("ircserv")
-					.setParam(client.getNickname())
-					.setParam(channelName)
-					.setContent("Cannot join channel (+k)"));
-				continue ;
-			}
+            {
+                server.sendMessage(client.getFd(), MessageBuilder("475")
+                    .setPrefix("ircserv")
+                    .setParam(client.getNickname())
+                    .setParam(channelName)
+                    .setContent("Cannot join channel (+k)"));
+                continue ;
+            }
 
 			// verifie sil y a une limite de personne sur le channel
 			if (chan->hasLimit() && chan->getMembers().size() >= (size_t)chan->getLimitUsers())
-			{
-				server.sendMessage(client.getFd(), MessageBuilder("471")
-					.setPrefix("ircserv")
-					.setParam(client.getNickname())
-					.setParam(channelName)
-					.setContent("Cannot join channel (+l)"));
-				continue ;
-			}
+            {
+                server.sendMessage(client.getFd(), MessageBuilder("471")
+                    .setPrefix("ircserv")
+                    .setParam(client.getNickname())
+                    .setParam(channelName)
+                    .setContent("Cannot join channel (+l)"));
+                continue ;
+            }
 		}
 
 		// on recupere le pointeur du client pour lajouter dans le channel ( que lon vient de creer ou non )
@@ -169,13 +141,12 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		std::string userList = "";
 		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{
-			// on rajoute @ pour que hexchat comprenne que cest un operator visuellement
 			if (chan->isOperator(it->second->getFd()))
 				userList += "@";
 			userList += it->second->getNickname() + " ";
 		}
 
-		// del le derniere espace
+		// del le derniere espace pas beau
 		if (!userList.empty())
 			userList.erase(userList.size() - 1);
 
