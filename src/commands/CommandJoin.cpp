@@ -2,10 +2,7 @@
 #include "Server.hpp"
 
 void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& prompt)
-{
-	//! ERR_INVITEONLYCHAN si loptinon +i est  active
-	//! ERR_BADCHANNELKEY si mdp faux
-	//! ERR_CHANNELISFULL si le channel est plein
+{	
 	if (prompt.args.empty()) 
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("461")
@@ -17,45 +14,48 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 	}
 
 	if (prompt.args[0] == "0")
-    {
-        //! PART sur tous les channels 
-        return;
-    }
+	{
+		//! PART sur tous les channels 
+		return;
+	}
 
 	// le premier arguement ou ya le nom du channel peut etre composé de plueirus channel 
 	// ex = JOIN room1,room2...
-    std::vector<std::string> channels;
-    std::vector<std::string> keys;
+	std::vector<std::string> channels;
+	std::vector<std::string> keys;
 
 	// om separe les channels dans le vector
 	std::stringstream ssChan(prompt.args[0]);
-    std::string tokenChan;
-    while (std::getline(ssChan, tokenChan, ','))
+	std::string tokenChan;
+	while (std::getline(ssChan, tokenChan, ','))
 	{
-        channels.push_back(tokenChan);
+		channels.push_back(tokenChan);
 	}
 
 	// pareil pour les mots de passe (le deuxieme param) 
 	if (prompt.args.size() > 1)
-    {
-        std::stringstream ssKeys(prompt.args[1]);
-        std::string tokenKey;
-        while (std::getline(ssKeys, tokenKey, ','))
-            keys.push_back(tokenKey);
-    }
+	{
+		std::stringstream ssKeys(prompt.args[1]);
+		std::string tokenKey;
+		while (std::getline(ssKeys, tokenKey, ','))
+			keys.push_back(tokenKey);
+	}
 
 	// on bouvle sur outs les channels a rejoindre
+	// JOIN #room1,#room2,#room3 mdp,psd
+	// sur une commande comme ca, les key sont distribue a la chaine , meme si room2 na pas besoin de key elle lui sera donne
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		std::string channelName = channels[i];
-        std::string key = "";
+		std::string key = "";
 
+		// si on a une key au meme index que le channel
 		if (i < keys.size())
 			key = keys[i];
 
 		// check le nom du channel doit commencer par un caractere speciale/pas despace
 		if (channelName.empty() || (channelName[0] != '#' && channelName[0] != '&' && channelName[0] != '+' && channelName[0] != '!'))
-        {
+		{
 			server.sendMessage(client.getFd(), MessageBuilder("476")
 				.setPrefix("ircserv")
 				.setParam(client.getNickname())
@@ -82,37 +82,37 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 
 			// si le channel est en inviteOnly on verifie si notre client est invite
 			if (chan->getInviteOnly())
-            {
-                //! verifier si le client est invite (mode +i) INVITE
-                server.sendMessage(client.getFd(), MessageBuilder("473")
-                    .setPrefix("ircserv")
-                    .setParam(client.getNickname())
-                    .setParam(channelName)
-                    .setContent("Cannot join channel (+i)"));
-                continue ;
-            }
+			{
+				//! verifier si le client est invite (mode +i) INVITE
+				server.sendMessage(client.getFd(), MessageBuilder("473")
+					.setPrefix("ircserv")
+					.setParam(client.getNickname())
+					.setParam(channelName)
+					.setContent("Cannot join channel (+i)"));
+				continue ;
+			}
 
 			// si le channel a besoin dun mdp, si cest pas le bon 
 			if (chan->hasKey() && chan->getKey() != key)
-            {
-                server.sendMessage(client.getFd(), MessageBuilder("475")
-                    .setPrefix("ircserv")
-                    .setParam(client.getNickname())
-                    .setParam(channelName)
-                    .setContent("Cannot join channel (+k)"));
-                continue ;
-            }
+			{
+				server.sendMessage(client.getFd(), MessageBuilder("475")
+					.setPrefix("ircserv")
+					.setParam(client.getNickname())
+					.setParam(channelName)
+					.setContent("Cannot join channel (+k)"));
+				continue ;
+			}
 
 			// verifie sil y a une limite de personne sur le channel
 			if (chan->hasLimit() && chan->getMembers().size() >= (size_t)chan->getLimitUsers())
-            {
-                server.sendMessage(client.getFd(), MessageBuilder("471")
-                    .setPrefix("ircserv")
-                    .setParam(client.getNickname())
-                    .setParam(channelName)
-                    .setContent("Cannot join channel (+l)"));
-                continue ;
-            }
+			{
+				server.sendMessage(client.getFd(), MessageBuilder("471")
+					.setPrefix("ircserv")
+					.setParam(client.getNickname())
+					.setParam(channelName)
+					.setContent("Cannot join channel (+l)"));
+				continue ;
+			}
 		}
 
 		// on recupere le pointeur du client pour lajouter dans le channel ( que lon vient de creer ou non )
@@ -144,12 +144,13 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		std::string userList = "";
 		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{
+			// on rajoute @ pour que hexchat comprenne que cest un operator visuellement
 			if (chan->isOperator(it->second->getFd()))
 				userList += "@";
 			userList += it->second->getNickname() + " ";
 		}
 
-		// del le derniere espace pas beau
+		// del le derniere espace
 		if (!userList.empty())
 			userList.erase(userList.size() - 1);
 
@@ -169,5 +170,3 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setContent("End of /NAMES list"));
 	}
 }
-
-//? BROADCAST -> RPL_TOPIC ( 332 ou lautre 331 ) -> RPL_NAMEREPLY ( 353 ) -> RPL_ENDOFNAMES ( 366 )
