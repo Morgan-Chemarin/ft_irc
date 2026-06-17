@@ -2,20 +2,20 @@
 
 Channel::Channel(): 
 	_name(""), 
-    _isInviteOnly(false), 
-    _isTopicProtected(false),
-    _key(""), 
-    _limitUsers(0)
+	_isInviteOnly(false), 
+	_isTopicProtected(false),
+	_key(""), 
+	_limitUsers(0)
 {
 
 }
 
 Channel::Channel(const std::string& name): 
 	_name(name), 
-    _isInviteOnly(false), 
-    _isTopicProtected(false),
-    _key(""), 
-    _limitUsers(0)
+	_isInviteOnly(false), 
+	_isTopicProtected(false),
+	_key(""), 
+	_limitUsers(0)
 {
 
 }
@@ -67,20 +67,20 @@ void	Channel::setTopic(const std::string &topic)
 // pour ajouter un membre au channel
 void Channel::addMember(Client *client)
 {
-    if (client)
-        _membersList[client->getFd()] = client;
+	if (client)
+		_membersList[client->getFd()] = client;
 }
 
 // pour supprimer un mec du channel
 void Channel::removeMember(int fd)
 {
-    _membersList.erase(fd);
+	_membersList.erase(fd);
 }
 
 // est ce que le user fd est dans le channel ?
 bool Channel::hasMember(int fd) const
 {
-    return (_membersList.find(fd) != _membersList.end());
+	return (_membersList.find(fd) != _membersList.end());
 }
 
 bool Channel::getInviteOnly() const
@@ -155,5 +155,20 @@ void Channel::removeOperator(int fd)
 
 bool Channel::isOperator(int fd) const
 {
-    return _operatorList.find(fd) != _operatorList.end();
+	return _operatorList.find(fd) != _operatorList.end();
+}
+
+void Channel::addInvite(const std::string& nickname)
+{
+	_invitedUsers.insert(nickname);
+}
+
+void Channel::removeInvite(const std::string& nickname)
+{
+	_invitedUsers.erase(nickname);
+}
+
+bool Channel::isInvited(const std::string& nickname) const
+{
+	return _invitedUsers.find(nickname) != _invitedUsers.end();
 }
