@@ -238,7 +238,8 @@ void	Server::receiveClientData(size_t i)
 			// on enleve le \r si il existe
 			if (!command.empty() && command[command.length() - 1] == '\r')
 				command.erase(command.length() - 1);
-			processCLientCommand(fd, command);
+			if (!command.empty())
+				processCLientCommand(fd, command);
 			current.erase(0, pos + 1);
 		}
 		// si jamais la commande est recu en deux paquet alors on sotck la premiere partie dans le buffer

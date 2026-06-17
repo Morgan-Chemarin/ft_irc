@@ -15,6 +15,7 @@ Channel::Channel(const Channel& other)
 {
 	_name = other._name;
 	_membersList = other._membersList;
+	_topic = other._topic;
 }
 
 Channel& Channel::operator=(const Channel& other)
@@ -23,6 +24,7 @@ Channel& Channel::operator=(const Channel& other)
 	{
 		_name = other._name;
 		_membersList = other._membersList;
+		_topic = other._topic;
 	}
 	return *this;
 }

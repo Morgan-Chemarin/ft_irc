@@ -65,7 +65,7 @@ void	CommandTopic::execute(Server& server, Client& client, const IRCPrompt& prom
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
 			.setParam(channelName)
-			.setContent("Not such a channel"));
+			.setContent("Not such channel"));
 		return ;
 	}
 	if (!channel->hasMember(client.getFd()))

@@ -3,7 +3,7 @@
 
 // Si il y a un # devant la cible lors d'un appel de PRIVMSG alors on doit envoye le message a un channel
 
-void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuider)
+void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuilder)
 {
 	Channel *channel = server.getChannel(target);
 	if (channel == NULL)
@@ -31,14 +31,14 @@ void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::st
 	{
 		// on verifie bien que le fd n'est pas celui du client qui envoie le message car il ne dois pas le recevoir
 		if (it->first != client.getFd())
-			server.sendMessage(it->first, msgBuider);
+			server.sendMessage(it->first, msgBuilder);
 	}
 	
 }
 
 // cette fonction permet d'envoyer un message au client cible 
 
-void	CommandPrivmsg::sendToUser(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuider)
+void	CommandPrivmsg::sendToUser(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuilder)
 {
 	Client *targetClient = server.getClientWithNick(target); // on recherche notre client cible dans _clients grace au nickname
 	// si le client n'existe pas on renvoie un message d'erreur
@@ -51,7 +51,7 @@ void	CommandPrivmsg::sendToUser(Server& server, Client& client, const std::strin
 			.setContent("No such nick/channel"));
 		return ;
 	}
-	server.sendMessage(targetClient->getFd(), msgBuider);
+	server.sendMessage(targetClient->getFd(), msgBuilder);
 }
 
 void	CommandPrivmsg::execute(Server &server, Client &client, const IRCPrompt &prompt)
@@ -78,7 +78,7 @@ void	CommandPrivmsg::execute(Server &server, Client &client, const IRCPrompt &pr
 	std::string	text = prompt.args[1];
 	// On parametre le message qui va etre envoye
 	MessageBuilder	msgBuilder("PRIVMSG");
-	msgBuilder.setPrefix(client.getNickname())
+	msgBuilder.setPrefix(client.getPrefix())
 		.setParam(target)
 		.setContent(text);
 	if (target[0] == '#')

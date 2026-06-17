@@ -27,7 +27,7 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
 			.setParam(channelName)
-			.setContent("Not such a channel"));
+			.setContent("Not such channel"));
 		return ;
 	}
 	if (!channel->hasMember(client.getFd()))
