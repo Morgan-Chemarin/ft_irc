@@ -42,6 +42,7 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 	if (prompt.args.size() == 1)
 	{
+		// pour avoir toutes les options actives et leur value associe en deux string
 		std::string modes = "+";
 		std::string modesParams = "";
 
