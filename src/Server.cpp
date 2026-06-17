@@ -4,6 +4,7 @@
 #include "CommandPass.hpp"
 #include "CommandNick.hpp"
 #include "CommandUser.hpp"
+#include "CommandMode.hpp"
 #include "CommandPrivmsg.hpp"
 #include "CommandKick.hpp"
 #include "CommandTopic.hpp"
@@ -77,9 +78,27 @@ Channel* Server::getChannel(std::string const &name)
 	return &(it->second);
 }
 
+const std::map<std::string, Channel>& Server::getChannels() const
+{
+    return _channels;
+}
+
 std::map<int, Client>& Server::getClients()
 {
 	return _clients;
+}
+
+Client* Server::getClientByNickname(const std::string& nickname)
+{
+	std::map<int, Client>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second.getNickname() == nickname)
+		{
+			return &(it->second);
+		}
+	}
+	return NULL;
 }
 
 std::string Server::getPassword() const
@@ -187,7 +206,7 @@ void Server::processCLientCommand(int fd, std::string raw_line)
 	
 	if (prompt.command == "CAP")
 	{
-    	return;  //! enlever le warning de cap sans auth
+		return;  //! enlever le warning de cap sans auth
 	}
 
 	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
@@ -195,19 +214,19 @@ void Server::processCLientCommand(int fd, std::string raw_line)
 	// si la commande existe pas
 	if (it == _commands.end())
 	{
-        std::cout << "Command " << prompt.command << " doesn't exist." << std::endl;
-        return;
-    }
-    
+		std::cout << "Command " << prompt.command << " doesn't exist." << std::endl;
+		return;
+	}
+	
 	// si on est pas enregistre  on ne peut que faire USER NICK ET PASS
 	if (!_clients[fd].getIsRegistered())
 	{
-        if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER")
+		if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER")
 		{
-            std::cout << "Fd " << fd << " execute  " << prompt.command << " without authentication !" << std::endl;
-            return; 
-        }
-    }
+			std::cout << "Fd " << fd << " execute  " << prompt.command << " without authentication !" << std::endl;
+			return; 
+		}
+	}
 	
 	it->second->execute(*this, _clients[fd], prompt);
 }
@@ -311,14 +330,20 @@ Client	*Server::getClientWithNick(const std::string &nickname)
 
 void Server::checkRegistration(Client &client)
 {
-    if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
-    {
-        client.setIsRegistered(true);
+	if (client.getHasPassword() && !client.getNickname().empty() && !client.getUsername().empty() && !client.getIsRegistered())
+	{
+		client.setIsRegistered(true);
 
 		// visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
 		sendMessage(client.getFd(), MessageBuilder("001")
-        	.setPrefix("ircserv")
-			.setParam(client.getNickname())
-        	.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
-    }
+		.setPrefix("ircserv")
+		.setParam(client.getNickname())
+		.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+
+		// TODO: 002
+		// TODO: 003
+		// TODO: 004
+
+		// TODO: ?? ERR_NOMOTD RPL_ENDOFMOTD
+	}
 }

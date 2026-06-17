@@ -1,12 +1,21 @@
 #include "Channel.hpp"
-#include <sys/socket.h>
 
-Channel::Channel(): _name("")
+Channel::Channel(): 
+	_name(""), 
+    _isInviteOnly(false), 
+    _isTopicProtected(true),
+    _key(""), 
+    _limitUsers(0)
 {
 
 }
 
-Channel::Channel(const std::string& name): _name(name)
+Channel::Channel(const std::string& name): 
+	_name(name), 
+    _isInviteOnly(false), 
+    _isTopicProtected(true),
+    _key(""), 
+    _limitUsers(0)
 {
 
 }
@@ -72,4 +81,79 @@ void Channel::removeMember(int fd)
 bool Channel::hasMember(int fd) const
 {
     return (_membersList.find(fd) != _membersList.end());
+}
+
+bool Channel::getInviteOnly() const
+{
+	return _isInviteOnly;
+}
+
+void Channel::setInviteOnly(bool sign)
+{
+	_isInviteOnly = sign;
+}
+
+bool Channel::getTopicProtected() const
+{
+	return _isTopicProtected;
+}
+
+void Channel::setTopicProtected(bool sign)
+{
+	_isTopicProtected = sign;
+}
+
+void Channel::setKey(std::string key)
+{
+	_key = key;
+}
+
+void Channel::unsetKey()
+{
+	_key = "";
+}
+
+bool Channel::hasKey() const
+{
+	return !_key.empty();
+}
+
+const std::string& Channel::getKey() const
+{
+	return _key;
+}
+
+void Channel::setLimitUsers(int limit)
+{
+	_limitUsers = limit;
+}
+
+void Channel::unsetLimitUsers()
+{
+	_limitUsers = 0;
+}
+
+bool Channel::hasLimit() const
+{
+	return _limitUsers > 0;
+}
+
+int Channel::getLimitUsers() const
+{
+	return _limitUsers;
+}
+
+void Channel::addOperator(int fd)
+{
+	_operatorList.insert(fd);
+}
+
+void Channel::removeOperator(int fd)
+{
+	_operatorList.erase(fd);
+}
+
+bool Channel::isOperator(int fd) const
+{
+    return _operatorList.find(fd) != _operatorList.end();
 }
