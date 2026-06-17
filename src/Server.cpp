@@ -63,6 +63,7 @@ void Server::initCommands() {
     _commands["USER"] = new CommandUser();
 	_commands["PRIVMSG"] = new CommandPrivmsg();
 	_commands["KICK"] = new CommandKick();
+	_commands["MODE"] = new CommandMode();
 }
 
 void Server::addChannel(std::string const &name)
