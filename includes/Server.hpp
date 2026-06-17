@@ -46,6 +46,8 @@ class Server
 
 		Client	*getClientWithNick(const std::string &nickname);
 
+		void	removeChannel(const std::string &name);
+
 		class  ErrorSocket : public std::exception
 		{
 			public:

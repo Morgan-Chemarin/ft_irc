@@ -10,6 +10,7 @@
 #include "CommandTopic.hpp"
 #include "CommandPing.hpp"
 #include "CommandInvite.hpp"
+#include "CommandPart.hpp"
 
 Server::Server()
 {}
@@ -68,6 +69,7 @@ void Server::initCommands() {
 	_commands["MODE"] = new CommandMode();
 	_commands["PING"] = new CommandPing();
 	_commands["INVITE"] = new CommandInvite();
+	_commands["PART"] = new CommandPart();
 }
 
 void Server::addChannel(std::string const &name)
@@ -372,4 +374,9 @@ void Server::checkRegistration(Client &client)
             .setParam(client.getNickname())
             .setContent("MOTD File is missing"));
 	}
+}
+
+void	Server::removeChannel(const std::string &name)
+{
+	_channels.erase(name);
 }

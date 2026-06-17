@@ -23,6 +23,8 @@ SRCS_FILES      =   main.cpp \
                     commands/CommandPing.cpp \
                     commands/CommandInvite.cpp \
                     commands/CommandUser.cpp
+                    commands/CommandUser.cpp \
+					commands/CommandPart.cpp
 
 SRCS_DIR        =       src
 HEADERS_DIR     =       includes

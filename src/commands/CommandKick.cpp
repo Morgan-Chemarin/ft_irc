@@ -16,10 +16,9 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 	}
 	std::string	channelName = prompt.args[0];
 	std::string	target = prompt.args[1];
-	std::string reason = "Kicked by an operator.";
+	std::string reason = "Kicked by an operator";
 	if (prompt.args.size() > 2)
 		reason = prompt.args[2];
-
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
 	{
@@ -71,4 +70,6 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
 		server.sendMessage(it->first, kickMsg);
 	channel->removeMember(targetClient->getFd());
+	if (channel->getMembers().empty())
+		server.removeChannel(channelName);
 }
