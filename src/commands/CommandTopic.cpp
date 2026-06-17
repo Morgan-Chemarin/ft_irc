@@ -24,15 +24,15 @@ void	CommandTopic::readTopic(Server &server, Client &client, Channel *channel, c
 void	CommandTopic::writeTopic(Server &server, Client &client, Channel *channel, const std::string &channelName, const std::string &topic)
 {
 	// Condition pour savoir si le client est moderateur
-	// if (!)
-	// {
-	// 	server.sendMessage(client.getFd(), MessageBuilder("482")
-	// 		.setPrefix("ircserv")
-	// 		.setParam(client.getNickname())
-	// 		.setParam(channelName)
-	// 		.setContent("You're not channel operator"));
-	// 	return ;
-	// }
+	if (!channel->isOperator(client.getFd()) || channel->getTopicProtected())
+	{
+		server.sendMessage(client.getFd(), MessageBuilder("482")
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam(channelName)
+			.setContent("You're not channel operator"));
+		return ;
+	}
 	channel->setTopic(topic);
 	MessageBuilder topicMsg("TOPIC");
 	topicMsg.setPrefix(client.getPrefix())

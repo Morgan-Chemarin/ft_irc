@@ -40,15 +40,15 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 		return ;
 	}
 	// Condition pour savoir si le client est moderateur
-	// if (!)
-	// {
-	// 	server.sendMessage(client.getFd(), MessageBuilder("482")
-	// 		.setPrefix("ircserv")
-	// 		.setParam(client.getNickname())
-	// 		.setParam(channelName)
-	// 		.setContent("You're not channel operator"));
-	// 	return ;
-	// }
+	if (!channel->isOperator(client.getFd()))
+	{
+		server.sendMessage(client.getFd(), MessageBuilder("482")
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam(channelName)
+			.setContent("You're not channel operator"));
+		return ;
+	}
 	Client *targetClient = server.getClientWithNick(target);
 	// condition pour verifier si le client cible est sur le serveur et si il est dans le channel
 	if (targetClient == NULL || !channel->hasMember(targetClient->getFd()))
