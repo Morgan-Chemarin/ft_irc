@@ -335,16 +335,37 @@ void Server::checkRegistration(Client &client)
 	{
 		client.setIsRegistered(true);
 
-		// visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
+		// 001 RPL_WELCOME visiblement quand on sinscrit on doit envoyer des messages de bienvneue sinon le client est pas content
 		sendMessage(client.getFd(), MessageBuilder("001")
-		.setPrefix("ircserv")
-		.setParam(client.getNickname())
-		.setParam("Welcome to the Internet Relay Network " + client.getNickname()));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("Welcome to the Internet Relay Network " + client.getNickname()));
 
-		// TODO: 002
-		// TODO: 003
-		// TODO: 004
+		// 002 RPL_YOURHOST cest la version du server et son nom
+		sendMessage(client.getFd(), MessageBuilder("002")
+            .setPrefix("ircserv")
+            .setParam(client.getNickname())
+            .setContent("Your host is ircserv, running version 1.0"));
+		
+		// 003 RPL_CREATED pour savoir quand le serveur a ete cree
+		sendMessage(client.getFd(), MessageBuilder("003")
+            .setPrefix("ircserv")
+            .setParam(client.getNickname())
+            .setContent("This server was created 2026-06-17"));
 
-		// TODO: ?? ERR_NOMOTD RPL_ENDOFMOTD
+		// 004 RPL_MYINFO cest les infos technique , donc le nom du server, sa version, les modes dutilisateurs (operator), les options de channel supportees
+		sendMessage(client.getFd(), MessageBuilder("004")
+            .setPrefix("ircserv")
+            .setParam(client.getNickname())
+            .setParam("ircserv")
+            .setParam("1.0")
+            .setParam("o")
+            .setParam("itkol"));
+
+		// 422 ERR_NOMOTD MessageOfTheDay mais on a pas ce fichier
+		sendMessage(client.getFd(), MessageBuilder("422")
+            .setPrefix("ircserv")
+            .setParam(client.getNickname())
+            .setContent("MOTD File is missing"));
 	}
 }
