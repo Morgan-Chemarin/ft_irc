@@ -130,12 +130,23 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 				.setParam(channelName));
 		}
 
-		// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut // A FAIRE QUAND MERGE TOPIC )
-		server.sendMessage(client.getFd(), MessageBuilder("332")
-			.setPrefix("ircserv")
-			.setParam(client.getNickname())
-			.setParam(channelName)
-			.setContent("Bienvenue sur " + channelName));
+		// envoyer le topic du channel sil en a un
+		if (chan->getTopic().empty())
+		{
+			server.sendMessage(client.getFd(), MessageBuilder("331")
+				.setPrefix("ircserv")
+				.setParam(client.getNickname())
+				.setParam(channelName)
+				.setContent("No topic is set"));
+		}
+		else
+		{
+			server.sendMessage(client.getFd(), MessageBuilder("332")
+				.setPrefix("ircserv")
+				.setParam(client.getNickname())
+				.setParam(channelName)
+				.setContent(chan->getTopic()));
+		}
 
 		// envoyer la liste les membres du channel
 		std::string userList = "";

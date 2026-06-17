@@ -3,7 +3,7 @@
 Channel::Channel(): 
 	_name(""), 
     _isInviteOnly(false), 
-    _isTopicProtected(true),
+    _isTopicProtected(false),
     _key(""), 
     _limitUsers(0)
 {
@@ -13,7 +13,7 @@ Channel::Channel():
 Channel::Channel(const std::string& name): 
 	_name(name), 
     _isInviteOnly(false), 
-    _isTopicProtected(true),
+    _isTopicProtected(false),
     _key(""), 
     _limitUsers(0)
 {
