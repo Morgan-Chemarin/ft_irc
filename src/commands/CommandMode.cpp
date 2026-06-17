@@ -150,10 +150,21 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 					if (argIndex < prompt.args.size())
 					{
 						std::string limitStr = prompt.args[argIndex++];
-						int limit = std::atoi(limitStr.c_str());
-						chan->setLimitUsers(limit);
-						changed = true;
-						paramAdded = limitStr;
+                        bool isEmpty = !limitStr.empty();
+						// on check si tous les caracteres sont des chiffres
+                        for (size_t k = 0; k < limitStr.size(); ++k) {
+                            if (limitStr[k] < '0' || limitStr[k] > '9')
+                                isEmpty = false;
+                        }
+                        
+                        if (isEmpty) {
+                            int limit = std::atoi(limitStr.c_str());
+                            if (limit > 0) {
+                                chan->setLimitUsers(limit);
+                                changed = true;
+                                paramAdded = limitStr;
+                            }
+                        }
 					}
 				}
 				else // remove limit ( 0 )
