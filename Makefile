@@ -15,6 +15,7 @@ SRCS_FILES      =   main.cpp \
 					MessageBuilder.cpp \
                     commands/CommandJoin.cpp \
 					commands/CommandKick.cpp \
+					commands/CommandTopic.cpp \
                     commands/CommandPass.cpp \
 					commands/CommandPrivmsg.cpp \
                     commands/CommandNick.cpp \

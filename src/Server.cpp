@@ -6,6 +6,7 @@
 #include "CommandUser.hpp"
 #include "CommandPrivmsg.hpp"
 #include "CommandKick.hpp"
+#include "CommandTopic.hpp"
 
 Server::Server()
 {}
@@ -56,6 +57,7 @@ Server::~Server()
 void Server::initCommands() {
 	_commands["JOIN"] = new CommandJoin();
     _commands["PASS"] = new CommandPass();
+	_commands["TOPIC"] = new CommandTopic();
     _commands["NICK"] = new CommandNick();
     _commands["USER"] = new CommandUser();
 	_commands["PRIVMSG"] = new CommandPrivmsg();

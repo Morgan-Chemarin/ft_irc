@@ -43,6 +43,16 @@ const std::map<int, Client*> &Channel::getMembers() const
 	return _membersList;
 }
 
+std::string Channel::getTopic() const
+{
+	return _topic;
+}
+
+void	Channel::setTopic(const std::string &topic)
+{
+	_topic = topic;
+}
+
 // pour ajouter un membre au channel
 void Channel::addMember(Client *client)
 {
