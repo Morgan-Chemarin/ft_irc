@@ -113,6 +113,8 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 
 		// on recupere le pointeur du client pour lajouter dans le channel ( que lon vient de creer ou non )
 		chan->addMember(&client);
+		// on supprime linvitation quqnd le client rejoint
+		chan->removeInvite(client.getNickname());
 		std::cout << "Le client " << client.getNickname() << " (fd " << client.getFd() 
 				<< ") a rejoint le channel " << channelName << std::endl;
 
