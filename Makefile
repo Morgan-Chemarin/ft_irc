@@ -20,6 +20,9 @@ SRCS_FILES      =   main.cpp \
 					commands/CommandPrivmsg.cpp \
                     commands/CommandNick.cpp \
                     commands/CommandMode.cpp \
+                    commands/CommandPing.cpp \
+                    commands/CommandInvite.cpp \
+                    commands/CommandUser.cpp
                     commands/CommandUser.cpp \
 					commands/CommandPart.cpp
 

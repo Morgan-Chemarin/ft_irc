@@ -23,8 +23,8 @@ void	CommandTopic::readTopic(Server &server, Client &client, Channel *channel, c
 
 void	CommandTopic::writeTopic(Server &server, Client &client, Channel *channel, const std::string &channelName, const std::string &topic)
 {
-	// Condition pour savoir si le client est moderateur
-	if (!channel->isOperator(client.getFd()) || channel->getTopicProtected())
+	// Condition pour savoir si le flag +t est a true et si le client est moderateur
+	if (channel->getTopicProtected() && !channel->isOperator(client.getFd()))
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("482")
 			.setPrefix("ircserv")

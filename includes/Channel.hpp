@@ -47,19 +47,24 @@ class Channel
 
 		bool isOperator(int fd) const;
 
+		void addInvite(const std::string& nickname);
+		void removeInvite(const std::string& nickname);
+		bool isInvited(const std::string& nickname) const;
+
 	private:
 		std::string _name;
-		std::map<int, Client*> _membersList;
-		
-		// option mode
+		std::string	_topic;
+
 		bool _isInviteOnly;
 		bool _isTopicProtected;
+	
 		std::string _key;
 		int _limitUsers;
+		std::map<int, Client*> _membersList;
 		std::set<int> _operatorList;
 
-		// std::map<int, Client*> operatorsList;
-		std::string	_topic;
+		std::set<std::string> _invitedUsers;
+
 };
 
 #endif
