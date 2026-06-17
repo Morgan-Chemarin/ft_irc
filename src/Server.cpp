@@ -73,6 +73,11 @@ Channel* Server::getChannel(std::string const &name)
 	return &(it->second);
 }
 
+const std::map<std::string, Channel>& Server::getChannels() const
+{
+    return _channels;
+}
+
 std::map<int, Client>& Server::getClients()
 {
 	return _clients;

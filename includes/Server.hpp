@@ -34,6 +34,7 @@ class Server
 
 		Channel* getChannel(std::string const &name);
     	void	addChannel(std::string const &name);
+		const std::map<std::string, Channel>& getChannels() const;
 
 		std::map<int, Client>& getClients();
 		Client* getClientByNickname(const std::string& nickname);
