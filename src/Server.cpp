@@ -8,6 +8,7 @@
 #include "CommandPrivmsg.hpp"
 #include "CommandKick.hpp"
 #include "CommandTopic.hpp"
+#include "CommandPing.hpp"
 
 Server::Server()
 {}
@@ -64,6 +65,7 @@ void Server::initCommands() {
 	_commands["PRIVMSG"] = new CommandPrivmsg();
 	_commands["KICK"] = new CommandKick();
 	_commands["MODE"] = new CommandMode();
+	_commands["PING"] = new CommandPing();
 }
 
 void Server::addChannel(std::string const &name)
