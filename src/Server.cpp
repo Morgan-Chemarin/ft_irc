@@ -8,6 +8,7 @@
 #include "CommandPrivmsg.hpp"
 #include "CommandKick.hpp"
 #include "CommandTopic.hpp"
+#include "CommandPart.hpp"
 
 Server::Server()
 {}
@@ -64,6 +65,7 @@ void Server::initCommands() {
 	_commands["PRIVMSG"] = new CommandPrivmsg();
 	_commands["KICK"] = new CommandKick();
 	_commands["MODE"] = new CommandMode();
+	_commands["PART"] = new CommandPart();
 }
 
 void Server::addChannel(std::string const &name)
@@ -347,4 +349,9 @@ void Server::checkRegistration(Client &client)
 
 		// TODO: ?? ERR_NOMOTD RPL_ENDOFMOTD
 	}
+}
+
+void	Server::removeChannel(const std::string &name)
+{
+	_channels.erase(name);
 }

@@ -18,13 +18,13 @@ class Channel
 		~Channel();
 
 		std::string getName() const;
-        const std::map<int, Client*> &getMembers() const;
+		const std::map<int, Client*> &getMembers() const;
 		std::string	getTopic() const;
 		void setTopic(const std::string &topic);
 		
 		void addMember(Client *client);
-        void removeMember(int fd);
-        bool hasMember(int fd) const;
+		void removeMember(int fd);
+		bool hasMember(int fd) const;
 
 		bool getInviteOnly() const;
 		void setInviteOnly(bool);

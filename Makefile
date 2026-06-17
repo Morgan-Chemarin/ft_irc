@@ -20,7 +20,8 @@ SRCS_FILES      =   main.cpp \
 					commands/CommandPrivmsg.cpp \
                     commands/CommandNick.cpp \
                     commands/CommandMode.cpp \
-                    commands/CommandUser.cpp
+                    commands/CommandUser.cpp \
+					commands/CommandPart.cpp
 
 SRCS_DIR        =       src
 HEADERS_DIR     =       includes
