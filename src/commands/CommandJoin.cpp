@@ -41,10 +41,35 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 			keys.push_back(tokenKey);
 	}
 
-	// on bouvle sur outs les channels a rejoindre
-	// JOIN #room1,#room2,#room3 mdp,psd
-	// sur une commande comme ca, les key sont distribue a la chaine , meme si room2 na pas besoin de key elle lui sera donne
-	for (size_t i = 0; i < channels.size(); ++i)
+	// check si le fd nest pas deja dans le channel
+	if (chan->hasMember(client.getFd()))
+		return;
+
+	// on recupere le pointeur du client pour lajouter dans le channel ( que lon vient de creer ou non )
+	chan->addMember(&client);
+	std::cout << "Le client " << client.getNickname() << " (fd " << client.getFd() 
+			  << ") a rejoint le channel " << channelName << std::endl;
+
+	// broadcast pour envoyer a tous les membres du channel linf oque quelquun a rejoint
+    const std::map<int, Client*>& members = chan->getMembers();
+	// on droadcats a TOUT le monde, celui qui rejoint aussi
+	for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
+    {
+        server.sendMessage(it->first, MessageBuilder("JOIN")
+            .setPrefix(client.getPrefix())
+            .setParam(channelName));
+    }
+
+	// envoyer le topic du channel sil en a un ( //! 331 sil en a pas mais pour linstant pn fait comme on peut)
+	server.sendMessage(client.getFd(), MessageBuilder("332")
+        .setPrefix("ircserv")
+        .setParam(client.getNickname())
+        .setParam(channelName)
+        .setContent("Bienvenue sur " + channelName));
+
+	// envoyer la liste les membres du channel
+	std::string userList = "";
+    for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 	{
 		std::string channelName = channels[i];
 		std::string key = "";

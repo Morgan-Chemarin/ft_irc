@@ -19,6 +19,8 @@ class Channel
 
 		std::string getName() const;
         const std::map<int, Client*> &getMembers() const;
+		std::string	getTopic() const;
+		void setTopic(const std::string &topic);
 		
 		void addMember(Client *client);
         void removeMember(int fd);
@@ -56,6 +58,8 @@ class Channel
 		int _limitUsers;
 		std::set<int> _operatorList;
 
+		// std::map<int, Client*> operatorsList;
+		std::string	_topic;
 };
 
 #endif

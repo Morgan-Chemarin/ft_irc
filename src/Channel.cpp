@@ -24,6 +24,7 @@ Channel::Channel(const Channel& other)
 {
 	_name = other._name;
 	_membersList = other._membersList;
+	_topic = other._topic;
 }
 
 Channel& Channel::operator=(const Channel& other)
@@ -32,6 +33,7 @@ Channel& Channel::operator=(const Channel& other)
 	{
 		_name = other._name;
 		_membersList = other._membersList;
+		_topic = other._topic;
 	}
 	return *this;
 }
@@ -50,6 +52,16 @@ std::string Channel::getName() const
 const std::map<int, Client*> &Channel::getMembers() const
 {
 	return _membersList;
+}
+
+std::string Channel::getTopic() const
+{
+	return _topic;
+}
+
+void	Channel::setTopic(const std::string &topic)
+{
+	_topic = topic;
 }
 
 // pour ajouter un membre au channel
