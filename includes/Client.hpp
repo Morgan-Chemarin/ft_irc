@@ -19,6 +19,7 @@ class Client
 		std::string	getBuffer() const;
 		bool	getHasPassword() const;
 		std::string	getPrefix() const;
+		std::string getOutBuffer() const;
 
 		void	setNickname(const std::string &Nickname);
 		void	setUsername(const std::string &Username);
@@ -27,7 +28,9 @@ class Client
 		void	setIp(const std::string &ip);
 
 		void	appendBuffer(const std::string &str);
+		void	appendOutBuffer(const std::string &str);
 		void	clearBuffer();
+		void	eraseOutBuffer(size_t len);
 
 	private:
 		int	_fd;
@@ -37,6 +40,7 @@ class Client
 		std::string	_buffer; // sert a stocker les messages partiels
 		bool	_hasPassword;
 		std::string	_ip;
+		std::string _outBuffer;
 };
 
 #endif

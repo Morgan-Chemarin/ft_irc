@@ -64,6 +64,21 @@ std::string	Client::getPrefix() const
 	return (_nickname + "!" + _username + "@" + _ip);
 }
 
+std::string	Client::getOutBuffer() const
+{
+	return (_outBuffer);
+}
+
+void	Client::eraseOutBuffer(size_t len)
+{
+	_outBuffer.erase(0, len);
+}
+
+void	Client::appendOutBuffer(const std::string &str)
+{
+	_outBuffer += str;
+}
+
 void	Client::setNickname(const std::string &nickname)
 {
 	_nickname = nickname;
