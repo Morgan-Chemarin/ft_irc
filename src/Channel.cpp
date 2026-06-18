@@ -23,8 +23,14 @@ Channel::Channel(const std::string& name):
 Channel::Channel(const Channel& other)
 {
 	_name = other._name;
-	_membersList = other._membersList;
 	_topic = other._topic;
+	_isInviteOnly = other._isInviteOnly;
+	_isTopicProtected = other._isTopicProtected;
+	_key = other._key;
+	_limitUsers = other._limitUsers;
+	_membersList = other._membersList;
+	_operatorList = other._operatorList;
+	_invitedUsers = other._invitedUsers;
 }
 
 Channel& Channel::operator=(const Channel& other)
@@ -32,8 +38,14 @@ Channel& Channel::operator=(const Channel& other)
 	if (this != &other)
 	{
 		_name = other._name;
-		_membersList = other._membersList;
 		_topic = other._topic;
+		_isInviteOnly = other._isInviteOnly;
+		_isTopicProtected = other._isTopicProtected;
+		_key = other._key;
+		_limitUsers = other._limitUsers;
+		_membersList = other._membersList;
+		_operatorList = other._operatorList;
+		_invitedUsers = other._invitedUsers;
 	}
 	return *this;
 }
