@@ -1,9 +1,6 @@
 #include "CommandPart.hpp"
 #include "Server.hpp"
 
-// cette commande sert a quitter un channel. Le serveur envoie un message comme quoi un client 
-// a quitter le serveur. Si jamais le channel est vide le serveur supprime le channel.
-
 void CommandPart::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	if (prompt.args.empty()) 

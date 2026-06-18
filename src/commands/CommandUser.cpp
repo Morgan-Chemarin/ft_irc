@@ -1,10 +1,6 @@
 #include "CommandUser.hpp"
 #include "Server.hpp"
 
-// Cette fonction permet au client de definir son username. Comme pour checkNICK elle regarde en premier si 
-// le client a rentrer le mdp puis elle regarde si la commande est au bon format et si tout est valide 
-// elle enregistre l'username
-
 void CommandUser::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	if (!client.getHasPassword())
@@ -22,7 +18,7 @@ void CommandUser::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setContent("You may not reregister"));
 		return ;
 	}
-	if (prompt.args.size() < 4) // format client USER = USER <username> <hostname> <servername> <realname>
+	if (prompt.args.size() < 4)
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("461")
 			.setPrefix("ircserv")

@@ -7,7 +7,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 	if (prompt.args.empty())
 	{
-		// 461 ERR_NEEDMOREPARAMS : pas assez de paramettre mais ne sera jamais appelle sur hexchat (il comprend quon parle du channel actuelle)
 		server.sendMessage(client.getFd(), MessageBuilder("461")
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
@@ -20,7 +19,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 	Channel* chan = server.getChannel(chanName);
 	if (!chan)
 	{
-		// 403 ERR_NOSUCHCHANNEL : si le channel nexiste pas (hexchat skip et gere MODE room sans #)
 		server.sendMessage(client.getFd(), MessageBuilder("403") 
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
@@ -31,7 +29,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 	if (!chan->hasMember(client.getFd()))
 	{
-		// 442 ERR_NOTONCHANNEL : si le client nest pas sur le channel cible
 		server.sendMessage(client.getFd(), MessageBuilder("442") 
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
@@ -42,7 +39,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 	if (prompt.args.size() == 1)
 	{
-		// pour avoir toutes les options actives et leur value associe en deux string
 		std::string modes = "+";
 		std::string modesParams = "";
 
@@ -60,8 +56,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
             ss << chan->getLimitUsers();
             modesParams += " " + ss.str();
         }
-
-		// 324 RPL_CHANNELMODEIS : renvoi la liste des modes de #room quand on fait "MODE #room"
 		server.sendMessage(client.getFd(), MessageBuilder("324")
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
@@ -72,7 +66,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 	if (!chan->isOperator(client.getFd()))
 	{
-		// 482 ERR_CHANOPRIVSNEEDED : si le client nest pas operator sur le channel
 		server.sendMessage(client.getFd(), MessageBuilder("482")
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
@@ -110,7 +103,7 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 		switch (c)
 		{
-			case 'i': // toggle inviteonly
+			case 'i':
 				if (chan->getInviteOnly() != sign)
 				{
 					chan->setInviteOnly(sign);
@@ -118,7 +111,7 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 				}
 				break;
 
-			case 't': // toggle topicProtected
+			case 't':
 				if (chan->getTopicProtected() != sign)
 				{
 					chan->setTopicProtected(sign);
@@ -126,8 +119,8 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 				}
 				break;
 
-			case 'k': // password
-				if (sign == true) // add key
+			case 'k':
+				if (sign == true)
 				{
 					if (argIndex < prompt.args.size())
 					{
@@ -137,21 +130,20 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 						paramAdded = password;
 					}
 				}
-				else // remove key
+				else
 				{
 					chan->unsetKey();
 					changed = true;
 				}
 				break;
 
-			case 'l': // limitUsers
-				if (sign == true) // add limit ( > 0 )
+			case 'l':
+				if (sign == true)
 				{
 					if (argIndex < prompt.args.size())
 					{
 						std::string limitStr = prompt.args[argIndex++];
                         bool isEmpty = !limitStr.empty();
-						// on check si tous les caracteres sont des chiffres
                         for (size_t k = 0; k < limitStr.size(); ++k) {
                             if (limitStr[k] < '0' || limitStr[k] > '9')
                                 isEmpty = false;
@@ -167,29 +159,29 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
                         }
 					}
 				}
-				else // remove limit ( 0 )
+				else
 				{
 					chan->unsetLimitUsers();
 					changed = true;
 				}
 				break;
 
-			case 'o': // set Operator
+			case 'o':
 				if (argIndex < prompt.args.size())
 				{
 					std::string targetNick = prompt.args[argIndex++];
 					Client* targetClient = server.getClientByNickname(targetNick);
 					if (targetClient != NULL)
 					{
-						if (chan->hasMember(targetClient->getFd())) // si la cible est dans le channel
+						if (chan->hasMember(targetClient->getFd()))
 						{
-							if (sign == true && !chan->isOperator(targetClient->getFd())) // soit si cest + et que la cible nest pas operator on met
+							if (sign == true && !chan->isOperator(targetClient->getFd()))
 							{
 								chan->addOperator(targetClient->getFd());
 								changed = true;
 								paramAdded = targetNick;
 							}
-							else if (sign == false && chan->isOperator(targetClient->getFd())) // sinon sil les on lui enleve
+							else if (sign == false && chan->isOperator(targetClient->getFd()))
 							{
 								chan->removeOperator(targetClient->getFd());
 								changed = true;
@@ -198,7 +190,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 						}
 						else
 						{
-							// 441 ERR_USERNOTINCHANNEL : quand la cible est sur le serveur mais pas sur le channel
 							server.sendMessage(client.getFd(), MessageBuilder("441")
 								.setPrefix("ircserv")
 								.setParam(client.getNickname())
@@ -209,7 +200,6 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 					}
 					else
 					{
-						// 401 ERR_NOSUCHNICK : on ne trouve pas le client sur le server
 						server.sendMessage(client.getFd(), MessageBuilder("401")
 							.setPrefix("ircserv")
 							.setParam(client.getNickname())
@@ -222,7 +212,7 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 
 		if (changed)
 		{
-			if (lastSign != curSignChar) // on ajoute le signe que si cest pas le meme que le precedent
+			if (lastSign != curSignChar)
 			{
 				modeChanges += curSignChar;
 				lastSign = curSignChar;
@@ -233,20 +223,16 @@ void CommandMode::execute(Server& server, Client& client, const IRCPrompt& promp
 		}
 	}
 
-	// broadcast des changements 
 	if (!modeChanges.empty())
 	{
-		// on cree le message de broaadcast
 		MessageBuilder msg("MODE");
 		msg.setPrefix(client.getPrefix())
-		   .setParam(chanName) // #room1
-		   .setParam(modeChanges); // -oi
+		   .setParam(chanName)
+		   .setParam(modeChanges);
 
-		for (size_t i = 0; i < paramsChanges.size(); ++i) // Momo
+		for (size_t i = 0; i < paramsChanges.size(); ++i)
 			msg.setParam(paramsChanges[i]);
-		// Name!user@host MODE #room1 +oi Momo
 
-		// on envoi a tous les fd du channel
 		const std::map<int, Client*>& members = chan->getMembers();
 		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{

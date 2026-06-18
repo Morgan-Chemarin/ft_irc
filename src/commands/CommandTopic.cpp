@@ -23,7 +23,6 @@ void	CommandTopic::readTopic(Server &server, Client &client, Channel *channel, c
 
 void	CommandTopic::writeTopic(Server &server, Client &client, Channel *channel, const std::string &channelName, const std::string &topic)
 {
-	// Condition pour savoir si le flag +t est a true et si le client est moderateur
 	if (channel->getTopicProtected() && !channel->isOperator(client.getFd()))
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("482")
@@ -42,9 +41,6 @@ void	CommandTopic::writeTopic(Server &server, Client &client, Channel *channel, 
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
 		server.sendMessage(it->first, topicMsg);
 }
-
-// cette commande permet de donner le topic du channel si elle a qu'un argument et si elle
-// en a deux elle le modifie
 
 void	CommandTopic::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {

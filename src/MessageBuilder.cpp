@@ -26,10 +26,6 @@ MessageBuilder	&MessageBuilder::operator=(const MessageBuilder &src)
 MessageBuilder::~MessageBuilder()
 {}
 
-// Les fonctions set sont particulieres car elle renvoie une reference vers l'objet lui meme,
-// cela permet le chainage de methode, c'est a dire que l'on peut creer nos messages
-// en les personnalisant
-
 MessageBuilder	&MessageBuilder::setPrefix(const std::string &prefix)
 {
 	_prefix = ":" + prefix + " ";
@@ -47,9 +43,6 @@ MessageBuilder	&MessageBuilder::setContent(const std::string &content)
 	_content = " :" + content;
 	return (*this);
 }
-
-// Cette fonction permet d'assembler le message une fois que les setter on finis leur travail
-// Elle rajoute le \r\n a la fin de chaque message comme le veut RFC
 
 std::string	MessageBuilder::build() const
 {

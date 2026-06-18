@@ -59,8 +59,6 @@ std::string Channel::getName() const
 {
 	return _name;
 }
-
-// pour recuperer tous les membres du channel
 const std::map<int, Client*> &Channel::getMembers() const
 {
 	return _membersList;
@@ -76,20 +74,17 @@ void	Channel::setTopic(const std::string &topic)
 	_topic = topic;
 }
 
-// pour ajouter un membre au channel
 void Channel::addMember(Client *client)
 {
 	if (client)
 		_membersList[client->getFd()] = client;
 }
 
-// pour supprimer un mec du channel
 void Channel::removeMember(int fd)
 {
 	_membersList.erase(fd);
 }
 
-// est ce que le user fd est dans le channel ?
 bool Channel::hasMember(int fd) const
 {
 	return (_membersList.find(fd) != _membersList.end());

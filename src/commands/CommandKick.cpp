@@ -1,8 +1,6 @@
 #include "CommandKick.hpp"
 #include "Server.hpp"
 
-// cette commande permet d'exclure un client d'une room. Il faut etre moderateur pour pouvoir utilise cette commande
-
 void CommandKick::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	if (prompt.args.size() < 2)
@@ -38,7 +36,6 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setContent("You're not on that channel"));
 		return ;
 	}
-	// Condition pour savoir si le client est moderateur
 	if (!channel->isOperator(client.getFd()))
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("482")
@@ -49,7 +46,6 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 		return ;
 	}
 	Client *targetClient = server.getClientByNickname(target);
-	// condition pour verifier si le client cible est sur le serveur et si il est dans le channel
 	if (targetClient == NULL || !channel->hasMember(targetClient->getFd()))
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("441")
@@ -60,7 +56,6 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setContent("They aren't on that channel"));
 		return ;
 	}
-	// apres toutes les verifications on construit le message, on l'envoie a tout les membres du channel et on kick la cible
 	MessageBuilder kickMsg("KICK");
 	kickMsg.setPrefix(client.getPrefix())
 			.setParam(channelName)

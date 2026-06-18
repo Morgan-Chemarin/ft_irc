@@ -1,10 +1,6 @@
 #include "CommandPass.hpp"
 #include "Server.hpp"
 
-// Cette fonction regarde si le client est deja enregistre, si l'arg n'est pas vide et si le password est correct
-// suite a cela il va changer la variable _hasPassword en true. Dans le cas ou une erreur survenait le programme enverrai
-// un message specifique au client
-
 void CommandPass::execute(Server& server, Client& client, const IRCPrompt& prompt)
 {
 	std::string target;

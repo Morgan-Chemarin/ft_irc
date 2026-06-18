@@ -37,7 +37,7 @@ class Client
 		std::string	_nickname;
 		std::string	_username;
 		bool	_isRegistered;
-		std::string	_buffer; // sert a stocker les messages partiels
+		std::string	_buffer;
 		bool	_hasPassword;
 		std::string	_ip;
 		std::string _outBuffer;
