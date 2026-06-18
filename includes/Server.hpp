@@ -10,13 +10,27 @@
 #include <poll.h>
 #include <vector>
 #include <map>
-#include <unistd.h>
 #include <arpa/inet.h>
+#include <csignal>
 
 #include "Client.hpp"
 #include "Parser.hpp"
 #include "Channel.hpp"
 #include "MessageBuilder.hpp"
+#include "ACommand.hpp"
+#include "CommandJoin.hpp"
+#include "CommandPass.hpp"
+#include "CommandNick.hpp"
+#include "CommandUser.hpp"
+#include "CommandMode.hpp"
+#include "CommandPrivmsg.hpp"
+#include "CommandKick.hpp"
+#include "CommandTopic.hpp"
+#include "CommandPing.hpp"
+#include "CommandInvite.hpp"
+#include "CommandPart.hpp"
+
+extern volatile sig_atomic_t g_serverRunning;
 
 class ACommand;
 

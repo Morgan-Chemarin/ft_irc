@@ -1,16 +1,12 @@
 #include "Server.hpp"
-#include "ACommand.hpp"
-#include "CommandJoin.hpp"
-#include "CommandPass.hpp"
-#include "CommandNick.hpp"
-#include "CommandUser.hpp"
-#include "CommandMode.hpp"
-#include "CommandPrivmsg.hpp"
-#include "CommandKick.hpp"
-#include "CommandTopic.hpp"
-#include "CommandPing.hpp"
-#include "CommandInvite.hpp"
-#include "CommandPart.hpp"
+
+volatile sig_atomic_t g_serverRunning = 1;
+
+void handleSignal(int signum)
+{
+	(void)signum;
+	g_serverRunning = false;
+}
 
 Server::Server()
 {}
@@ -51,19 +47,28 @@ Server::~Server()
 	if (_serverSocket != -1)
 		close(_serverSocket);
 
-	// pour vider la map de commande ala destrutcion
-	std::map<std::string, ACommand*>::iterator it;
-	for (it = _commands.begin(); it != _commands.end(); ++it) {
-		delete it->second;
+	std::map<int, Client>::iterator itClient;
+	for (itClient = _clients.begin(); itClient != _clients.end(); ++itClient)
+	{
+		if (itClient->first != -1)
+			close(itClient->first);
 	}
+	_clients.clear();
+
+	// pour vider la map de commande ala destrutcion
+	std::map<std::string, ACommand*>::iterator itCommand;
+	for (itCommand = _commands.begin(); itCommand != _commands.end(); ++itCommand) {
+		delete itCommand->second;
+	}
+	_commands.clear();
 }
 
 void Server::initCommands() {
 	_commands["JOIN"] = new CommandJoin();
-    _commands["PASS"] = new CommandPass();
+	_commands["PASS"] = new CommandPass();
 	_commands["TOPIC"] = new CommandTopic();
-    _commands["NICK"] = new CommandNick();
-    _commands["USER"] = new CommandUser();
+	_commands["NICK"] = new CommandNick();
+	_commands["USER"] = new CommandUser();
 	_commands["PRIVMSG"] = new CommandPrivmsg();
 	_commands["KICK"] = new CommandKick();
 	_commands["MODE"] = new CommandMode();
@@ -87,7 +92,7 @@ Channel* Server::getChannel(std::string const &name)
 
 const std::map<std::string, Channel>& Server::getChannels() const
 {
-    return _channels;
+	return _channels;
 }
 
 std::map<int, Client>& Server::getClients()
@@ -211,26 +216,40 @@ void Server::processCLientCommand(int fd, std::string raw_line)
 	
 	if (prompt.command == "CAP")
 	{
-		return;  //! enlever le warning de cap sans auth
+		if (!prompt.args.empty() && prompt.args[0] == "LS")
+		{
+			sendMessage(fd, MessageBuilder("CAP")
+				.setPrefix("ircserv")
+				.setParam("*")
+				.setParam("LS")
+				.setContent(""));
+		}
+		return ;
+	}
+
+	if (!_clients[fd].getIsRegistered())
+	{
+		if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER" && prompt.command != "CAP")
+		{
+			sendMessage(fd, MessageBuilder("451")
+				.setPrefix("ircserv")
+				.setParam("*")
+				.setContent("You have not registered"));
+			return; 
+		}
 	}
 
 	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
-
-	// si la commande existe pas
 	if (it == _commands.end())
 	{
-		std::cout << "Command " << prompt.command << " doesn't exist." << std::endl;
+		std::string currentNick = _clients[fd].getNickname().empty() ? "*" : _clients[fd].getNickname();
+		
+		sendMessage(fd, MessageBuilder("421")
+			.setPrefix("ircserv")
+			.setParam(currentNick)
+			.setParam(prompt.command)
+			.setContent("Unknown command"));
 		return;
-	}
-	
-	// si on est pas enregistre  on ne peut que faire USER NICK ET PASS
-	if (!_clients[fd].getIsRegistered())
-	{
-		if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER")
-		{
-			std::cout << "Fd " << fd << " execute  " << prompt.command << " without authentication !" << std::endl;
-			return; 
-		}
 	}
 	
 	it->second->execute(*this, _clients[fd], prompt);
@@ -284,10 +303,12 @@ void	Server::run()
 	serverPoll.revents = 0;
 	_pollfd.push_back(serverPoll);
 
-	while (true)
+	while (g_serverRunning)
 	{
 		if (poll(&_pollfd[0], _pollfd.size(), -1) == -1) // Permet de mettre le programme en pause jusqu'a l'arriver d'un paquet (Reduit la conso du CPU)
 		{
+			if (!g_serverRunning)
+				break;
 			std::cerr << "Error: function poll failed" << std::endl;
 			return ;
 		}
@@ -335,30 +356,30 @@ void Server::checkRegistration(Client &client)
 
 		// 002 RPL_YOURHOST cest la version du server et son nom
 		sendMessage(client.getFd(), MessageBuilder("002")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("Your host is ircserv, running version 1.0"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("Your host is ircserv, running version 1.0"));
 		
 		// 003 RPL_CREATED pour savoir quand le serveur a ete cree
 		sendMessage(client.getFd(), MessageBuilder("003")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("This server was created 2026-06-17"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("This server was created 2026-06-17"));
 
 		// 004 RPL_MYINFO cest les infos technique , donc le nom du server, sa version, les modes dutilisateurs (operator), les options de channel supportees
 		sendMessage(client.getFd(), MessageBuilder("004")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setParam("ircserv")
-            .setParam("1.0")
-            .setParam("o")
-            .setParam("itkol"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam("ircserv")
+			.setParam("1.0")
+			.setParam("o")
+			.setParam("itkol"));
 
 		// 422 ERR_NOMOTD MessageOfTheDay mais on a pas ce fichier
 		sendMessage(client.getFd(), MessageBuilder("422")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("MOTD File is missing"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("MOTD File is missing"));
 	}
 }
 
