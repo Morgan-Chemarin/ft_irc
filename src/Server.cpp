@@ -77,10 +77,10 @@ Server::~Server()
 
 void Server::initCommands() {
 	_commands["JOIN"] = new CommandJoin();
-    _commands["PASS"] = new CommandPass();
+	_commands["PASS"] = new CommandPass();
 	_commands["TOPIC"] = new CommandTopic();
-    _commands["NICK"] = new CommandNick();
-    _commands["USER"] = new CommandUser();
+	_commands["NICK"] = new CommandNick();
+	_commands["USER"] = new CommandUser();
 	_commands["PRIVMSG"] = new CommandPrivmsg();
 	_commands["KICK"] = new CommandKick();
 	_commands["MODE"] = new CommandMode();
@@ -104,7 +104,7 @@ Channel* Server::getChannel(std::string const &name)
 
 const std::map<std::string, Channel>& Server::getChannels() const
 {
-    return _channels;
+	return _channels;
 }
 
 std::map<int, Client>& Server::getClients()
@@ -228,7 +228,15 @@ void Server::processCLientCommand(int fd, std::string raw_line)
 	
 	if (prompt.command == "CAP")
 	{
-		return;  //! enlever le warning de cap sans auth
+		if (!prompt.args.empty() && prompt.args[0] == "LS")
+		{
+			sendMessage(fd, MessageBuilder("CAP")
+				.setPrefix("ircserv")
+				.setParam("*")
+				.setParam("LS")
+				.setContent(""));
+		}
+		return ;
 	}
 
 	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
@@ -354,30 +362,30 @@ void Server::checkRegistration(Client &client)
 
 		// 002 RPL_YOURHOST cest la version du server et son nom
 		sendMessage(client.getFd(), MessageBuilder("002")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("Your host is ircserv, running version 1.0"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("Your host is ircserv, running version 1.0"));
 		
 		// 003 RPL_CREATED pour savoir quand le serveur a ete cree
 		sendMessage(client.getFd(), MessageBuilder("003")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("This server was created 2026-06-17"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("This server was created 2026-06-17"));
 
 		// 004 RPL_MYINFO cest les infos technique , donc le nom du server, sa version, les modes dutilisateurs (operator), les options de channel supportees
 		sendMessage(client.getFd(), MessageBuilder("004")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setParam("ircserv")
-            .setParam("1.0")
-            .setParam("o")
-            .setParam("itkol"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setParam("ircserv")
+			.setParam("1.0")
+			.setParam("o")
+			.setParam("itkol"));
 
 		// 422 ERR_NOMOTD MessageOfTheDay mais on a pas ce fichier
 		sendMessage(client.getFd(), MessageBuilder("422")
-            .setPrefix("ircserv")
-            .setParam(client.getNickname())
-            .setContent("MOTD File is missing"));
+			.setPrefix("ircserv")
+			.setParam(client.getNickname())
+			.setContent("MOTD File is missing"));
 	}
 }
 
