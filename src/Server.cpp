@@ -101,9 +101,7 @@ Client* Server::getClientByNickname(const std::string& nickname)
 	for (it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (it->second.getNickname() == nickname)
-		{
 			return &(it->second);
-		}
 	}
 	return NULL;
 }
@@ -318,18 +316,6 @@ void	Server::sendMessage(int fd, const MessageBuilder &builder)
 	std::string	packet = builder.build();
 	std::cout << packet << std::endl;
 	send(fd, packet.c_str(), packet.length(), 0);
-}
-
-// Cette fonction permet de recuperer la fiche client et donc le fd grace a son nickname
-
-Client	*Server::getClientWithNick(const std::string &nickname)
-{
-	for (std::map<int, Client>::iterator it =_clients.begin(); it != _clients.end() ; ++it)
-	{
-		if (it->second.getNickname() == nickname)
-			return (&(it->second));
-	}
-	return (NULL);
 }
 
 // Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.

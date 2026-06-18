@@ -48,7 +48,7 @@ void CommandKick::execute(Server& server, Client& client, const IRCPrompt& promp
 			.setContent("You're not channel operator"));
 		return ;
 	}
-	Client *targetClient = server.getClientWithNick(target);
+	Client *targetClient = server.getClientByNickname(target);
 	// condition pour verifier si le client cible est sur le serveur et si il est dans le channel
 	if (targetClient == NULL || !channel->hasMember(targetClient->getFd()))
 	{

@@ -40,7 +40,7 @@ void	CommandPrivmsg::sendToChannel(Server& server, Client& client, const std::st
 
 void	CommandPrivmsg::sendToUser(Server& server, Client& client, const std::string &target, const MessageBuilder &msgBuilder)
 {
-	Client *targetClient = server.getClientWithNick(target); // on recherche notre client cible dans _clients grace au nickname
+	Client *targetClient = server.getClientByNickname(target); // on recherche notre client cible dans _clients grace au nickname
 	// si le client n'existe pas on renvoie un message d'erreur
 	if (targetClient == NULL)
 	{
