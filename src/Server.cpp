@@ -12,6 +12,14 @@
 #include "CommandInvite.hpp"
 #include "CommandPart.hpp"
 
+volatile sig_atomic_t g_serverRunning = 1;
+
+void handleSignal(int signum)
+{
+	(void)signum;
+	g_serverRunning = false;
+}
+
 Server::Server()
 {}
 
@@ -51,11 +59,20 @@ Server::~Server()
 	if (_serverSocket != -1)
 		close(_serverSocket);
 
-	// pour vider la map de commande ala destrutcion
-	std::map<std::string, ACommand*>::iterator it;
-	for (it = _commands.begin(); it != _commands.end(); ++it) {
-		delete it->second;
+	std::map<int, Client>::iterator itClient;
+	for (itClient = _clients.begin(); itClient != _clients.end(); ++itClient)
+	{
+		if (itClient->first != -1)
+			close(itClient->first);
 	}
+	_clients.clear();
+
+	// pour vider la map de commande ala destrutcion
+	std::map<std::string, ACommand*>::iterator itCommand;
+	for (itCommand = _commands.begin(); itCommand != _commands.end(); ++itCommand) {
+		delete itCommand->second;
+	}
+	_commands.clear();
 }
 
 void Server::initCommands() {
@@ -284,10 +301,12 @@ void	Server::run()
 	serverPoll.revents = 0;
 	_pollfd.push_back(serverPoll);
 
-	while (true)
+	while (g_serverRunning)
 	{
 		if (poll(&_pollfd[0], _pollfd.size(), -1) == -1) // Permet de mettre le programme en pause jusqu'a l'arriver d'un paquet (Reduit la conso du CPU)
 		{
+			if (!g_serverRunning)
+				break;
 			std::cerr << "Error: function poll failed" << std::endl;
 			return ;
 		}

@@ -12,11 +12,14 @@
 #include <map>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <csignal>
 
 #include "Client.hpp"
 #include "Parser.hpp"
 #include "Channel.hpp"
 #include "MessageBuilder.hpp"
+
+extern volatile sig_atomic_t g_serverRunning;
 
 class ACommand;
 

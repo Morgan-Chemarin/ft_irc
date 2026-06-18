@@ -1,4 +1,7 @@
+#include <csignal>
 #include "Server.hpp"
+
+void handleSignal(int signum);
 
 int main(int ac, char **av)
 {
@@ -47,6 +50,9 @@ int main(int ac, char **av)
 			return 1;
 		}
 	}
+
+	std::signal(SIGINT, handleSignal);
+	std::signal(SIGTERM, handleSignal);
 
 	try
 	{
