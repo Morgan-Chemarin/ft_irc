@@ -1,6 +1,5 @@
 #include "CommandNick.hpp"
 #include "Server.hpp"
-#include <set> 
 
 // Cette fonction permet au client de definir un nickname, mais avant tout le client doit toujours faire le password en premier.
 // La fonction gere les doublons grace au for et a l'iterateur

@@ -1,4 +1,3 @@
-#include <csignal>
 #include "Server.hpp"
 
 void handleSignal(int signum);

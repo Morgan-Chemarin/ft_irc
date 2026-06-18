@@ -2,6 +2,7 @@
 #define COMMANDNICK_HPP
 
 #include "ACommand.hpp"
+#include <set> 
 
 class CommandNick : public ACommand
 {

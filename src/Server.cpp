@@ -1,16 +1,4 @@
 #include "Server.hpp"
-#include "ACommand.hpp"
-#include "CommandJoin.hpp"
-#include "CommandPass.hpp"
-#include "CommandNick.hpp"
-#include "CommandUser.hpp"
-#include "CommandMode.hpp"
-#include "CommandPrivmsg.hpp"
-#include "CommandKick.hpp"
-#include "CommandTopic.hpp"
-#include "CommandPing.hpp"
-#include "CommandInvite.hpp"
-#include "CommandPart.hpp"
 
 volatile sig_atomic_t g_serverRunning = 1;
 
