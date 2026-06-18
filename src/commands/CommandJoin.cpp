@@ -101,7 +101,6 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		{
 			server.addChannel(channelName);
 			chan = server.getChannel(channelName);
-			std::cout << "Le client a cree la room " << channelName << std::endl;
 			chan->addOperator(client.getFd()); // pou mettre le createur operator
 		}
 		else
@@ -148,8 +147,6 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		chan->addMember(&client);
 		// on supprime linvitation quqnd le client rejoint
 		chan->removeInvite(client.getNickname());
-		std::cout << "Le client " << client.getNickname() << " (fd " << client.getFd() 
-				<< ") a rejoint le channel " << channelName << std::endl;
 
 		// broadcast pour envoyer a tous les membres du channel linf oque quelquun a rejoint
 		// :Momo!user@host JOIN #channel

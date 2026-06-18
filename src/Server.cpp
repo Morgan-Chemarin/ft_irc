@@ -173,7 +173,6 @@ void	Server::acceptNewClient()
 	ClientPollFd.events = POLLIN;
 	ClientPollFd.revents = 0;
 	_pollfd.push_back(ClientPollFd);
-	std::cout << "Client connected" << std::endl;
 }
 
 // Cette fontion est appelee lorsque un client quitte son terminal ou bien crash,
@@ -182,7 +181,6 @@ void	Server::acceptNewClient()
 void	Server::disconnectClient(size_t i)
 {
 	int	fd = _pollfd[i].fd;
-	std::cout << "Client disconnected" << std::endl;
 	close(fd);
 
 	// gerer lexpulsion des channels ou il etait present
@@ -357,7 +355,6 @@ void	Server::run()
 void	Server::sendMessage(int fd, const MessageBuilder &builder)
 {
 	std::string	packet = builder.build();
-	std::cout << packet << std::endl;
 	_clients[fd].appendOutBuffer(packet); // on stock le message
 	setPollOut(fd, true); // on demande a poll d'ecouter
 }
