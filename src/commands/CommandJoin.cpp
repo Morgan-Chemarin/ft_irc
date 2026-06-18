@@ -50,8 +50,8 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		if (i < keys.size())
 			key = keys[i];
 
-		// check le nom du channel doit commencer par un caractere speciale/pas despace
-		if (channelName.empty() || (channelName[0] != '#' && channelName[0] != '&' && channelName[0] != '+' && channelName[0] != '!'))
+		// check le nom du channel doit commencer par un #  avec entre 1et 49 caracteres en plus
+		if (channelName.size() < 2|| channelName.size() > 50 || (channelName[0] != '#'))
 		{
 			server.sendMessage(client.getFd(), MessageBuilder("476")
 				.setPrefix("ircserv")
