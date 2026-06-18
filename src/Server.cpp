@@ -227,23 +227,29 @@ void Server::processCLientCommand(int fd, std::string raw_line)
 		return ;
 	}
 
-	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
-
-	// si la commande existe pas
-	if (it == _commands.end())
-	{
-		std::cout << "Command " << prompt.command << " doesn't exist." << std::endl;
-		return;
-	}
-	
-	// si on est pas enregistre  on ne peut que faire USER NICK ET PASS
 	if (!_clients[fd].getIsRegistered())
 	{
-		if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER")
+		if (prompt.command != "PASS" && prompt.command != "NICK" && prompt.command != "USER" && prompt.command != "CAP")
 		{
-			std::cout << "Fd " << fd << " execute  " << prompt.command << " without authentication !" << std::endl;
+			sendMessage(fd, MessageBuilder("451")
+				.setPrefix("ircserv")
+				.setParam("*")
+				.setContent("You have not registered"));
 			return; 
 		}
+	}
+
+	std::map<std::string, ACommand*>::iterator it = _commands.find(prompt.command);
+	if (it == _commands.end())
+	{
+		std::string currentNick = _clients[fd].getNickname().empty() ? "*" : _clients[fd].getNickname();
+		
+		sendMessage(fd, MessageBuilder("421")
+			.setPrefix("ircserv")
+			.setParam(currentNick)
+			.setParam(prompt.command)
+			.setContent("Unknown command"));
+		return;
 	}
 	
 	it->second->execute(*this, _clients[fd], prompt);
