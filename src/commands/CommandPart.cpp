@@ -46,6 +46,7 @@ void CommandPart::execute(Server& server, Client& client, const IRCPrompt& promp
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
 		server.sendMessage(it->first, partMsg);
 	channel->removeMember(client.getFd());
+	channel->removeOperator(client.getFd());
 	if (channel->getMembers().empty())
 		server.removeChannel(channelName);
 }

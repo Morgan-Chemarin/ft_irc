@@ -13,9 +13,42 @@ void CommandJoin::execute(Server& server, Client& client, const IRCPrompt& promp
 		return;
 	}
 
+	// JOIN 0 pour quitter tous les channesl
 	if (prompt.args[0] == "0")
 	{
-		//! PART sur tous les channels 
+		std::map<std::string, Channel> channels = server.getChannels();
+		std::vector<std::string> channelsLeave;
+
+		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+		{
+			if (it->second.hasMember(client.getFd()))
+				channelsLeave.push_back(it->first);
+		}
+
+		// pour chaque channe la quitte
+		for (size_t i = 0; i < channelsLeave.size(); ++i)
+		{
+			Channel* chan = server.getChannel(channelsLeave[i]);
+			if (!chan)
+				continue;
+
+			std::string clientPrefix = client.getPrefix();
+			// envoyer le message de depart a tous les clients du channel
+			const std::map<int, Client*>& members = chan->getMembers();
+			for (std::map<int, Client*>::const_iterator itMem = members.begin(); itMem != members.end(); ++itMem)
+			{
+				server.sendMessage(itMem->first, MessageBuilder("PART")
+					.setPrefix(clientPrefix)
+					.setParam(channelsLeave[i]));
+			}
+
+			chan->removeMember(client.getFd());
+			chan->removeOperator(client.getFd());
+
+			// si le channel est vide on le supprime
+			if (chan->getMembers().empty())
+				server.removeChannel(channelsLeave[i]);
+		}
 		return;
 	}
 
