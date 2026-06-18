@@ -46,6 +46,7 @@ class Server
 
 		void	removeChannel(const std::string &name);
 
+		void	setPollOut(int fd,	bool enable);
 		class  ErrorSocket : public std::exception
 		{
 			public:

@@ -11,14 +11,14 @@ void CommandPart::execute(Server& server, Client& client, const IRCPrompt& promp
 		server.sendMessage(client.getFd(), MessageBuilder("461")
 			.setPrefix("ircserv")
 			.setParam(client.getNickname())
-			.setParam("JOIN")
+			.setParam("PART")
 			.setContent("Not enough parameters"));
 		return;
 	}
 	std::string channelName = prompt.args[0];
 	std::string reason = "Leaving";
-	if (prompt.args.size() > 2)
-		reason = prompt.args[2];
+	if (prompt.args.size() > 1)
+		reason = prompt.args[1];
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
 	{

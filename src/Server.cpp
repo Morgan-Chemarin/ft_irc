@@ -253,6 +253,12 @@ void	Server::receiveClientData(size_t i)
 	{
 		_clients[fd].appendBuffer(buffer);
 		std::string	current = _clients[fd].getBuffer();
+		// la rfc veut qu'un texte envoye ne depasse pas les 512 octets, cette condition verifie cela
+		if (current.length() > 512 && current.find('\n') == std::string::npos)
+		{
+			disconnectClient(i);
+			return ;
+		}
 		size_t	pos;
 		// on creer une boucle pour pouvoir traiter plusieurs commandes envoye en un
 		// seul paquet, chaque commande est separe d'un \n
@@ -302,7 +308,23 @@ void	Server::run()
 					size_t	oldSize = _pollfd.size();
 					receiveClientData(i);
 					if (_pollfd.size() < oldSize) // Si jamais il y a une deconnexion d'un client, le client d'apres dans _pollfd va prendre sa
-						i--;					  // place et donc pour eviter de sauter son tour (i++) ou prevois le coup en le decrementant
+					{							  // place et donc pour eviter de sauter son tour (i++) ou prevois le coup en le decrementant
+						i--;
+						continue; // si 
+					}
+				}
+			}
+			if (_pollfd[i].revents & POLLOUT)
+			{
+				int currentFd = _pollfd[i].fd;
+				std::string outData = _clients[currentFd].getOutBuffer(); // on recupere le texte en attente d'expdition
+				int bytesSent = send(currentFd, outData.c_str(), outData.length(), 0); // on envoie le texte
+				if (bytesSent > 0)
+				{
+					_clients[currentFd].eraseOutBuffer(bytesSent); // vu que send n'envoie pas toujours tout en un seul paquet on recupere le nombre d'octet envoye
+																   // on va donc supprime ce qui a ete envoye et la suite partira apres
+					if (_clients[currentFd].getOutBuffer().empty())	// si le buffer est fini demande d'arrete de surveiller l'ecriture
+						setPollOut(currentFd, false);	
 				}
 			}
 		}
@@ -315,7 +337,8 @@ void	Server::sendMessage(int fd, const MessageBuilder &builder)
 {
 	std::string	packet = builder.build();
 	std::cout << packet << std::endl;
-	send(fd, packet.c_str(), packet.length(), 0);
+	_clients[fd].appendOutBuffer(packet); // on stock le message
+	setPollOut(fd, true); // on demande a poll d'ecouter
 }
 
 // Cette fonction permet de check si les 3 conditions (le client a un password, un nickname, un username) sont remplis.
@@ -365,4 +388,21 @@ void Server::checkRegistration(Client &client)
 void	Server::removeChannel(const std::string &name)
 {
 	_channels.erase(name);
+}
+
+void	Server::setPollOut(int fd, bool enable)
+{
+	for (size_t i = 0; i < _pollfd.size() ; i++)
+	{
+		if (_pollfd[i].fd == fd)
+		{
+			// condition pour ajouter POLLOUT a pollfd, cela va permettre de surveille l'ecriture
+			if (enable)
+				_pollfd[i].events |= POLLOUT;
+			// permet de supprimer POLLOUT et donc maintenant de surveille que POLLIN
+			else
+				_pollfd[i].events &= ~POLLOUT;
+			break ;
+		}
+	}
 }
