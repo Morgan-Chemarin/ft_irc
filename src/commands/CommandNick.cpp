@@ -16,7 +16,7 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 	else
 		target = client.getNickname();
 
-		// check si larg est vide
+	// check si larg est vide
 	if (prompt.args.empty())
 	{
 		server.sendMessage(client.getFd(), MessageBuilder("431")
@@ -61,7 +61,7 @@ void CommandNick::execute(Server& server, Client& client, const IRCPrompt& promp
 		{
 			// on ne renvoi pas lerreur si cest le client  qui a son propre nick
 			if (it->first == client.getFd())
-				return ;
+				continue ;
 
 			server.sendMessage(client.getFd(), MessageBuilder("433")
 			.setPrefix("ircserv")
